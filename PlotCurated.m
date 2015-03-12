@@ -1,37 +1,12 @@
-function PlotCurated;
-    plotTCs = 0;
-    plotSingleTCs = 0;
+function PlotCurated
     plotDots = 1;
     plotSlope = 1;
+
 
     load('CuratedCells.mat');
 
     densities = cat(1,Base.density);
     
-    
-    
-
-    if plotTCs
-        for dd = 1:2
-            figure(); set(gcf,'color','white');
-
-            currentData = Base(dd).Cells;
-            numRows = floor(sqrt(length(currentData))*1.6);
-            numCols = ceil(sqrt(length(currentData))*2/3);
-
-            for cell = 1:length(currentData);
-                subplot(numRows,numCols,cell); hold on;
-
-                plot(currentData(cell).Dx,currentData(cell).correlatedResponse, 'r -- o','linewidth',2);
-                plot(currentData(cell).Dx,currentData(cell).halfmatchedResponse, 'b -- o','linewidth',2);
-                plot(currentData(cell).Dx,currentData(cell).anticorrelatedResponse, 'k -- o','linewidth',2);
-
-            end
-
-
-        end
-    end
-
     % This is included just for the sake of colors
     fileNames = {};
     myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(10,3).^2];
@@ -42,9 +17,10 @@ function PlotCurated;
         count = 0;
         for dd = [1,4];
             count = count+1;
-
+            
             currentData = Base(dd).Cells;
             nCells = length(currentData);
+            
             cols = rand(nCells,3);
             subplot(1,round(length(densities)/2),count); hold on;
             hold on;
@@ -87,37 +63,25 @@ function PlotCurated;
             set(gca,'XTick',-1:0.5:1,'fontsize',20);
             set(gca,'YTick',-1:0.5:1);
 
-            title(sprintf('Density: %i%', densities(dd)),'fontsize', 30);
+            title(sprintf('Density: %i%', densities(dd)),'fontsize', 25);
+            
+            
+            % Put some text in the window showing how many cells
+            jbeCount = 0;
+            lemCount = 0;
+            for j = 1:nCells
+                jbeCount = jbeCount + strcmp(currentData(j).filename(9:11),'jbe');
+                lemCount = lemCount + strcmp(currentData(j).filename(9:11),'lem');
+            end
+            text(-0.75,0.8,['jbe: ',num2str(jbeCount),' cells']);
+            text(-0.75,0.7,['lem: ',num2str(lemCount),' cells']);
+                
 
             % Draw some lines to split into quadrants
             line([0,0],[-1,1],'linewidth',1,'color','red','linestyle','--');
             line([-1,1],[0,0],'linewidth',1,'color','red','linestyle','--');
         end
         set(gcf,'Color','White','windowbuttondownfcn',@TC_callback)
-    end
-
-
-
-    if plotSingleTCs
-        myCells = 25;
-        for dd = 1
-
-            currentData = Base(dd).Cells;
-            for cell = myCells;
-                fig=figure(); set(gcf,'color','white'); hold on;
-
-                plot(currentData(cell).Dx,currentData(cell).correlatedResponse, 'r -- o','linewidth',3,'markersize',5);
-                plot(currentData(cell).Dx,currentData(cell).halfmatchedResponse, 'b -- o','linewidth',3,'markersize',5);
-                plot(currentData(cell).Dx,currentData(cell).anticorrelatedResponse, 'k -- o','linewidth',3,'markersize',5);
-                %set(gcf,'Position',[300,500,350,250]);
-                set(gca,'XTick',[],'YTick',[]);
-                fName = sprintf('dd%i.cell%i.jpeg',densities(dd),cell);
-                %screen2jpeg(['/sid/Ephys/HalfMatched/Analysis/Figures/',fName]);
-            end
-
-
-        end
-
     end
 
     if plotSlope
@@ -134,9 +98,10 @@ function PlotCurated;
         count = 0;
         for dd = [1,4];
             count = count+1;
-
+            
             currentData = Base(dd).Cells;
             nCells = length(currentData);
+
             cols = rand(nCells,3);
             subplot(1,round(length(densities)/2),count); hold on;
 
@@ -182,14 +147,31 @@ function PlotCurated;
             if dd==1;
                 currentXlim = [-0.35,0.35];
             end
+            
+            
+                
+            
+            % Put some text in the window showing how many cells
+            jbeCount = 0;
+            lemCount = 0;
+            for j = 1:nCells
+                jbeCount = jbeCount + strcmp(currentData(j).filename(9:11),'jbe');
+                lemCount = lemCount + strcmp(currentData(j).filename(9:11),'lem');
+            end
+            text(-0.25,0.8,['jbe: ',num2str(jbeCount),' cells']);
+            text(-0.25,0.7,['lem: ',num2str(lemCount),' cells']);
+            
             % Draw some lines to split into quadrants
             plot([0,0],[-1,1],'linewidth',1,'color','red','linestyle','--');
             plot([-1,1],[0,0],'linewidth',1,'color','red','linestyle','--');
             xlim(currentXlim);
+            
         end
         set(gcf,'Color','White','windowbuttondownfcn',{@TC_callback});
 
+        
     end
+    
 
 end
 
