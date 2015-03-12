@@ -9,7 +9,7 @@ function PlotCurated
     
     % This is included just for the sake of colors
     fileNames = {};
-    myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(10,3).^2];
+    myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(10,3)];
     monkeys = {'jbe','lem'};
     if plotDots
         figure();
