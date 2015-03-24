@@ -1,11 +1,10 @@
-function PlotCurated2(varargin)
+function PlotCurated(varargin)
 
     % Create figure
     myFig=figure();
     
     mh = uimenu(myFig,'Label','Plot');
-    mainx = uimenu(mh,'Label','Main: x axis');
-    mainy = uimenu(mh,'Label','Main: y axis');
+    main = uimenu(mh,'Label','Main');
     
     % Takes optional for which curated cells file
     if nargin > 0
@@ -26,28 +25,11 @@ function PlotCurated2(varargin)
 
     setappdata(myFig,'Base',Base);
     
-    %%% This is a bit too much work right now. Might do this later.
+    menuCorr = uimenu(main,'Label','Correlation','Checked', 'on','Callback',{@make_subplots,Base,'Correlation'});
+    menuSlope = uimenu(main,'Label','Slope','Checked','off','Callback',{@make_subplots,Base,'Slope'});
+    menuACHM = uimenu(main,'Label','ACHM','Checked','off','Callback',{@make_subplots,Base,'ACHM'});
+    menuMeanCAC = uimenu(main, 'Label', 'Mean CAC','Checked','off','Callback',{@make_subplots,Base,'MeanCAC'});
     
-    % X menu
-    menux_CHMr = uimenu(mainx,'Label','Correlated-HM r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
-    menux_CACr = uimenu(mainx,'Label','Correlated-AC r','Checked', 'off','Callback',{@make_subplots,Base,'CACr'});
-    menux_CMeanr = uimenu(mainx,'Label','Correlated-Mean CAC r','Checked', 'off','Callback',{@make_subplots,Base,'CMeanr'});
-    
-    menux_CHMslope = uimenu(mainx,'Label','Correlated-HM slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
-    menux_CACslope = uimenu(mainx,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
-    menux_CMeanslope = uimenu(mainx,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
-    
-    
-    % Y menu
-    menuy_CHMr = uimenu(mainy,'Label','Correlated-HM r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
-    menuy_CACr = uimenu(mainy,'Label','Correlated-AC r','Checked', 'off','Callback',{@make_subplots,Base,'CACr'});
-    menuy_CMeanr = uimenu(mainy,'Label','Correlated-Mean CAC r','Checked', 'off','Callback',{@make_subplots,Base,'CMeanr'});
-    
-    menuy_CHMslope = uimenu(mainy,'Label','Correlated-HM slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
-    menuy_CACslope = uimenu(mainy,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
-    menuy_CMeanslope = uimenu(mainy,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
-    
-
     menuPenetrations = uimenu(mh,'Label','Penetrations','Callback',{@plot_penetrations,Base});
     menuRank = uimenu(mh,'Label','Rank','Callback',{@PlotRank});
     menuSmile = uimenu(mh,'Label','Smile','Callback',{@smile});
@@ -64,9 +46,6 @@ function PlotCurated2(varargin)
         setappdata(gca,'subplot',count);
         setappdata(gca,'density',Base(dd).density);
         
-        % Set the x and y axis data
-        setappdata(myFig,'xdata','CHMr');
-        setappdata(myFig,'ydata','CACr');
         
         make_subplots(myFig,NaN,Base,'Correlation');
     end
@@ -74,36 +53,14 @@ function PlotCurated2(varargin)
 
 end
 
-function make_subplots(myFig,evt,Base,type)
+function make_subplots(myFig,evt,Base,type);
     
     count = 0;
     ddmax = length(Base);
     ch = get(gcf,'Children');
-    
-    % Need to redo this thing...
     plotMenu = get(ch(1),'Children');
-    xmainMenu = plotMenu(5);
-    ymainMenu = plotMenu(4);
-    xmainChildren = get(xmainMenu,'Children');
-    ymainChildren = get(ymainMenu,'Children');
-    
-    axchange = '';
-    
-    if ~isempty(events(evt));
-        rootMenu = evt.Source.Parent.Label;
-        if strcmp(rootMenu,'Main: x axis');
-
-            setappdata(gcf,'xdata',type)
-            axchange = 'x';
-
-        elseif strcmp(rootMenu,'Main: y axis');
-            setappdata(gcf,'ydata',type);
-            axchange = 'y';
-        else
-            error('Error: This isn''t supposed to happen');
-        end
-    end
-    
+    mainMenu = plotMenu(2);
+    mainChildren = get(mainMenu,'Children');
     
     for dd = [1,ddmax];
         count = count+1;
@@ -115,27 +72,19 @@ function make_subplots(myFig,evt,Base,type)
         setappdata(gca,'subplot',count);
         setappdata(gca,'density',Base(dd).density);
         
-        plot_data(currentData);
+        plot_data(currentData,type);
         
         % Adjust the ticks appropriately
-        if strcmp(axchange,'x');
-            mainChildren = xmainChildren;
-        elseif strcmp(axchange,'y');
-            mainChildren = ymainChildren;
-        end
-        
-        if ~strcmp(axchange,'');
-            for k = 1:length(mainChildren);
-                current = mainChildren(k);
-
-                if strcmp(current.Label,evt.Source.Label);
-                    current.Checked = 'on';
-                else
-                    current.Checked = 'off';
-                end
+        for k = 1:length(mainChildren);
+            currentMenu = mainChildren(k);
+            
+            if strcmp(currentMenu.Label,type);
+                currentMenu.Checked = 'on';
+            else
+                currentMenu.Checked = 'off';
             end
-        end        
-           
+        end
+
     end
 
 end
@@ -144,7 +93,7 @@ end
 
 
 
-function plot_data(currentData);
+function plot_data(currentData,type);
     monkeys = {'jbe','lem'};
     figAppdata = getappdata(gcf);
     axAppdata = getappdata(gca);
@@ -166,8 +115,6 @@ function plot_data(currentData);
     X = zeros(1,nCells);
     Y = zeros(1,nCells);
     
-    xtype = getappdata(gcf,'xdata');
-    ytype = getappdata(gcf,'ydata');
     
     for cell = 1:nCells
         fileNameExists = strcmp(currentData(cell).filename, fileNames);
@@ -183,57 +130,30 @@ function plot_data(currentData);
             currentMonkey = currentData(cell).filename(9:11);
             
             % We choose from a range of data types to plot
-            switch xtype
-                case 'CHMr'
+            switch type
+                case 'Correlation'
                     x = currentData(cell).regHm(1);
+                    y = currentData(cell).regAc(1);
                     
-                case 'CACr'
-                    x = currentData(cell).regAc(1);
+                case 'Slope'
+                    x = currentData(cell).regHm(2);
+                    y = currentData(cell).regAc(2);
                     
-                case 'CMeanr'
-                    [x,~,~] = regression(currentData(cell).correlatedResponse, ...
-                            (currentData(cell).correlatedResponse+ ...
-                            currentData(cell).anticorrelatedResponse)/2);
-                    
-                case 'CHMslope'
+                case 'ACHM'
+                    [~,y,~] = regression(currentData(cell).correlatedResponse, ...
+                                (currentData(cell).correlatedResponse+ ...
+                                currentData(cell).anticorrelatedResponse)/2);
                     x = currentData(cell).regHm(2);
                     
-                case 'CACslope'
-                    x = currentData(cell).regAc(2);
                     
-                case 'CMeanslope'
+                case 'MeanCAC'
                     [~,x,~] = regression(currentData(cell).correlatedResponse, ...
                             (currentData(cell).correlatedResponse+ ...
                             currentData(cell).anticorrelatedResponse)/2);
-            end
-            
-            switch ytype
-                case 'CHMr'
-                    y = currentData(cell).regHm(1);
-                    
-                case 'CACr'
-                    y = currentData(cell).regAc(1);
-                    
-                case 'CMeanr'
-                    [y,~,~] = regression(currentData(cell).correlatedResponse, ...
-                            (currentData(cell).correlatedResponse+ ...
-                            currentData(cell).anticorrelatedResponse)/2);
-                    
-                case 'CHMslope'
-                    y = currentData(cell).regHm(2);
-                    
-                case 'CACslope'
                     y = currentData(cell).regAc(2);
-                    
-                case 'CMeanslope'
-                    [~,y,~] = regression(currentData(cell).correlatedResponse, ...
-                            (currentData(cell).correlatedResponse+ ...
-                            currentData(cell).anticorrelatedResponse)/2);
-                    
             end
-                
             
-            % Different shapes for jbe and lem
+            
             if strcmp(currentMonkey,monkeys{1});
                 plot(x,y,'k','marker','s','markersize',...
                     round(1+currentData(cell).DDI*20),'markerfacecolor',currentColor);
@@ -249,59 +169,35 @@ function plot_data(currentData);
         end
     end
     
-    switch xtype
-        case 'CHMr'
+    switch type
+        case 'Correlation'
             xlab = 'Correlated-HM r';
-            xlims = [-1,1];
-
-        case 'CACr'
-            xlab = 'Correlated-AC r';
-            xlims = [-1,1];            
-            
-        case 'CMeanr'
-            xlab = 'Correlated-Mean CAC r';
-            xlims = [-0.2,1];
-            
-        case 'CHMslope'
-            xlab = 'Correlated-HM slope';
-            xlims = [-0.35,0.35];
-            
-        case 'CACslope'
-            xlab = 'Correlated-AC slope';
-            xlims = [-1,1];
-           
-        case 'CMeanslope'
-            xlab = 'Correlated-Mean CAC slope';
-            xlims = [-1,1];
-    end
-    
-    switch ytype
-        case 'CHMr'
-            ylab = 'Correlated-HM r';
-            ylims = [-1,1];
-
-        case 'CACr'
             ylab = 'Correlated-AC r';
-            ylims = [-1,1];            
+            xlims = [-1,1];
+            ylims = [-1,1];
             
-        case 'CMeanr'
-            ylab = 'Correlated-Mean CAC r';
+        case 'Slope'
+            xlab = 'Correlated-HM slope';
+            ylab = 'Correlated-AC slope';
+            
+            xlims = [-0.35,0.35];
+            ylims = [-1,1];
+            
+        case 'ACHM'
+            xlab = 'Correlated-HM slope';
+            ylab = 'Correlated-Mean CAC slope';
+            
+            xlims = [-0.2,1];
             ylims = [-0.2,1];
             
-        case 'CHMslope'
-            ylab = 'Correlated-HM slope';
-            ylims = [-0.35,0.35];
-            
-        case 'CACslope'
+        case 'MeanCAC'
+            xlab = 'Correlated-Mean CAC slope';
             ylab = 'Correlated-AC slope';
-            ylims = [-1,1];
             
-        case 'CMeanslope'
-            ylab = 'Correlated-Mean CAC slope';
-            ylims = [-1,1];
+            xlims = [0,1];
+            ylims = [-1,0.5];
     end
     
-        
     XYData.x = X;
     XYData.y = Y;
     setappdata(gca,'XYData',XYData);
@@ -335,9 +231,11 @@ function plot_data(currentData);
     % Draw some lines to split into quadrants
     plot([0,0],[-1,1],'linewidth',1,'color','red','linestyle','--');
     plot([-1,1],[0,0],'linewidth',1,'color','red','linestyle','--');
+    if strcmp('ACHM',type);
+        plot([0,1],[0,1],'k -');
+    end
     
-    plot([-1,1],[-1,1],'k -');
-
+    setappdata(gcf,'type','ACHM');
 end
 
 
