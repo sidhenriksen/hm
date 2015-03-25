@@ -48,6 +48,7 @@ function PlotCurated2(varargin)
     menuy_CMeanslope = uimenu(mainy,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
     
 
+    menuStats = uimenu(mh,'Label','Stats','Callback',{@show_stats,Base});
     menuPenetrations = uimenu(mh,'Label','Penetrations','Callback',{@plot_penetrations,Base});
     menuRank = uimenu(mh,'Label','Rank','Callback',{@PlotRank});
     menuSmile = uimenu(mh,'Label','Smile','Callback',{@smile});
@@ -566,4 +567,35 @@ function plot_penetrations(~,~,Base);
         
     end
    
+end
+
+function show_stats(myFig,evt,Base);
+    regHm5 = cat(1,Base(1).Cells.regHm);
+    regHm24 = cat(1,Base(length(Base)).Cells.regHm);
+    
+    [Hr5,Pr5,CIr5,Statsr5] = ttest(regHm5(:,1),0);
+    [Hm5,Pm5,CIm5,Statsm5] = ttest(regHm5(:,2),0);
+    
+    [Hr24,Pr24,CIr24,Statsr24] = ttest(regHm24(:,1),0);
+    [Hm24,Pm24,CIm24,Statsm24] = ttest(regHm24(:,2),0);
+    
+    figure();
+    xlim([0,1]);
+    ylim([0,1]);
+    set(gca,'visible','off')
+    x = -0.1;
+    
+    % 5% density
+    fs = 13;
+    text(x,0.925,sprintf(['one-sample t-tests testing whether slopes and \ncorrelation coefficients', ...
+        ' are drawn from sample with mean 0']));
+    text(x,0.7,'5% density','fontsize',16);
+    text(x,0.6,sprintf('r: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsr5.df,Statsr5.tstat,Pr5,CIr5(1),CIr5(2)),'fontsize',fs)
+    text(x,0.525,sprintf('slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5.df,Statsm5.tstat,Pm5,CIm5(1),CIm5(2)),'fontsize',fs);
+    
+    % 5% density
+    text(x,0.3,'24% density','fontsize',16);
+    text(x,0.2,sprintf('r: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsr24.df,Statsr24.tstat,Pr24,CIr24(1),CIr24(2)),'fontsize',fs)
+    text(x,0.125,sprintf('slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm24.df,Statsm24.tstat,Pm24,CIm24(1),CIm24(2)),'fontsize',fs);
+    set(gcf,'color','white','position',[100,200,550,400])
 end
