@@ -47,6 +47,9 @@ function out = plot_TCs_base(cellStructure)
             plot(Dx,Dx*0 + cellStructure(iCell).uncorrelatedResponse, 'color',[0.15,0.8,0.1], ...
                 'linewidth',2,'linestyle','--')
         end
+        
+        cellname = [cellStructure(iCell).filename(18:24),'-',num2str(cellStructure(iCell).cellnumber)];
+        title(cellname,'fontsize',20)
     end
     set(out,'color','white');
 end
