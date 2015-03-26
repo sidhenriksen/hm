@@ -83,8 +83,8 @@ function make_subplots(myFig,evt,Base,type)
     
     % Need to redo this thing...
     plotMenu = get(ch(1),'Children');
-    xmainMenu = plotMenu(5);
-    ymainMenu = plotMenu(4);
+    xmainMenu = plotMenu(length(plotMenu));
+    ymainMenu = plotMenu(length(plotMenu)-1);
     xmainChildren = get(xmainMenu,'Children');
     ymainChildren = get(ymainMenu,'Children');
     
@@ -192,9 +192,10 @@ function plot_data(currentData);
                     x = currentData(cell).regAc(1);
                     
                 case 'CMeanr'
-                    [x,~,~] = regression(currentData(cell).correlatedResponse, ...
-                            (currentData(cell).correlatedResponse+ ...
-                            currentData(cell).anticorrelatedResponse)/2);
+                    corrResp = currentData(cell).correlatedResponse';
+                    meanCACResp = (currentData(cell).correlatedResponse+ ...
+                            currentData(cell).anticorrelatedResponse)'/2;
+                    [x,~,~] = regression2(meanCACResp,corrResp);
                     
                 case 'CHMslope'
                     x = currentData(cell).regHm(2);
@@ -203,9 +204,10 @@ function plot_data(currentData);
                     x = currentData(cell).regAc(2);
                     
                 case 'CMeanslope'
-                    [~,x,~] = regression(currentData(cell).correlatedResponse, ...
-                            (currentData(cell).correlatedResponse+ ...
-                            currentData(cell).anticorrelatedResponse)/2);
+                    corrResp = currentData(cell).correlatedResponse';
+                    meanCACResp = (currentData(cell).correlatedResponse+ ...
+                            currentData(cell).anticorrelatedResponse)'/2;
+                    [~,x,~] = regression2(meanCACResp,corrResp);
             end
             
             switch ytype
@@ -216,9 +218,10 @@ function plot_data(currentData);
                     y = currentData(cell).regAc(1);
                     
                 case 'CMeanr'
-                    [y,~,~] = regression(currentData(cell).correlatedResponse, ...
-                            (currentData(cell).correlatedResponse+ ...
-                            currentData(cell).anticorrelatedResponse)/2);
+                    corrResp = currentData(cell).correlatedResponse';
+                    meanCACResp = (currentData(cell).correlatedResponse+ ...
+                            currentData(cell).anticorrelatedResponse)'/2;
+                    [y,~,~] = regression2(meanCACResp,corrResp);
                     
                 case 'CHMslope'
                     y = currentData(cell).regHm(2);
@@ -227,9 +230,10 @@ function plot_data(currentData);
                     y = currentData(cell).regAc(2);
                     
                 case 'CMeanslope'
-                    [~,y,~] = regression(currentData(cell).correlatedResponse, ...
-                            (currentData(cell).correlatedResponse+ ...
-                            currentData(cell).anticorrelatedResponse)/2);
+                    corrResp = currentData(cell).correlatedResponse';
+                    meanCACResp = (currentData(cell).correlatedResponse+ ...
+                            currentData(cell).anticorrelatedResponse)'/2;
+                    [~,y,~] = regression2(meanCACResp,corrResp);
                     
             end
                 
