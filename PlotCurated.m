@@ -1,4 +1,4 @@
-function PlotCurated2(varargin)
+function PlotCurated(varargin)
 
     % Create figure
     myFig=figure();
@@ -21,7 +21,7 @@ function PlotCurated2(varargin)
     
     % This is included just for the sake of colors
     fileNames = {};
-    myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(10,3)];
+    myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(15,3)];
     monkeys = {'jbe','lem'};
 
     setappdata(myFig,'Base',Base);
@@ -149,11 +149,12 @@ function plot_data(currentData);
     monkeys = {'jbe','lem'};
     figAppdata = getappdata(gcf);
     axAppdata = getappdata(gca);
+    allExptNames = figAppdata.Base(1).exptlist;
     
     % If colours are not defined, define them. Otherwise just get them
     % from appdata
     if ~isfield(figAppdata,'colors');
-        myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(10,3).^2];
+        myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(20,3).^2];
         setappdata(gcf,'colors',myCols);
     else
         myCols = figAppdata.colors;
@@ -171,14 +172,10 @@ function plot_data(currentData);
     ytype = getappdata(gcf,'ydata');
     
     for cell = 1:nCells
-        fileNameExists = strcmp(currentData(cell).filename, fileNames);
-        if any(fileNameExists);
-            currentColor = myCols(fileNameExists,:);
-        else
-            fileNames{length(fileNames)+1} = currentData(cell).filename;
-            currentColor = myCols(length(fileNames),:);
-        end
-
+        
+        whichFile = strcmp(currentData(cell).filename,allExptNames);
+        currentColor = myCols(whichFile,:);
+        
         % Skip if we have NaNs...
         if ~isnan(currentData(cell).DDI);
             currentMonkey = currentData(cell).filename(9:11);
