@@ -20,60 +20,40 @@ function PlotRank(varargin)
             rankData.highDensity = zeros(nCells,dxL);
         end
         
+        correlatedRank = zeros(nCells,dxL);
+        halfmatchedRank = zeros(nCells,dxL);
+        anticorrelatedRank = zeros(nCells,dxL);
+        
         for cell = 1:nCells;
-            %% First we need to resample the tuning curves to make them align
-            currentDx = Base(d).Cells(cell).Dx;
+            %% First we compute the rank order for each cell
             
-            % Get resampling coefficients
-            [P,Q] = resampleCell(Base(d).Cells(cell),dxL);
+            % Extract and normalize data
+            
+            correlatedResponse = Base(d).Cells(cell).correlatedResponse;
+            halfmatchedResponse = Base(d).Cells(cell).halfmatchedResponse;
+            anticorrelatedResponse = Base(d).Cells(cell).anticorrelatedResponse;
+            
+            [cRank,cIndex] = sort(correlatedResponse,'descend');
+            hmRank = halfmatchedResponse(cIndex);
+            acRank = anticorrelatedResponse(cIndex);
+            
+            Dx = Base(d).Cells(cell).Dx;
+            
             
             % Resample disparity values
-            Base(d).Cells(cell).Dx = linspace(currentDx(1),currentDx(end),dxL);
-
-            % Resample responses
-            Base(d).Cells(cell).correlatedResponse = resample(Base(d).Cells(cell).correlatedResponse,P,Q);
-            Base(d).Cells(cell).anticorrelatedResponse = resample(Base(d).Cells(cell).anticorrelatedResponse,P,Q);
-            Base(d).Cells(cell).halfmatchedResponse = resample(Base(d).Cells(cell).halfmatchedResponse,P,Q);
+            newDx = linspace(min(Dx),max(Dx),dxL);
             
-            % And SEMs
-            Base(d).Cells(cell).correlatedSEM= resample(Base(d).Cells(cell).correlatedSEM,P,Q);
-            Base(d).Cells(cell).anticorrelatedSEM = resample(Base(d).Cells(cell).anticorrelatedSEM,P,Q);
-            Base(d).Cells(cell).halfmatchedSEM = resample(Base(d).Cells(cell).halfmatchedSEM,P,Q);
+            cRank2 = interp1(Dx,cRank,newDx);
+            hmRank2 = interp1(Dx,hmRank,newDx);
+            acRank2 = interp1(Dx,acRank,newDx);
+            
+            maxC = max([cRank2,hmRank2,acRank2]); minC = min([cRank2,hmRank2,acRank2]);
+            correlatedRank(cell,:) = (cRank2-minC)/(maxC-minC);
+            halfmatchedRank(cell,:) = (hmRank2-minC)/(maxC-minC);
+            anticorrelatedRank(cell,:) = (acRank2-minC)/(maxC-minC);
             
 
         end
-        
-        %% Now we can start doing the ranks
-        
-        % Extract the tuning curve data
-        correlatedData = cat(1,Base(d).Cells.correlatedResponse);
-        anticorrelatedData = cat(1,Base(d).Cells.anticorrelatedResponse);
-        halfmatchedData = cat(1,Base(d).Cells.halfmatchedResponse);
-        
-        % Normalize it
-        normMatrix = repmat(max(correlatedData,[],2),[1,dxL]);
-        
-        correlatedData = correlatedData./normMatrix;
-        anticorrelatedData = anticorrelatedData./normMatrix;
-        halfmatchedData = halfmatchedData./normMatrix;
-        
-        % Create the ranks
-        [correlatedRank,columnIndices] = sort(correlatedData,2,'descend');
-        
-        % Need to initialize these into their appropriate shapes
-        anticorrelatedRank = zeros(size(correlatedRank));
-        halfmatchedRank = zeros(size(correlatedRank));
-        
-        %columnIndices = columnIndices;
-        
-        rowIndices = repmat(1:nCells,[1,dxL]);
-        
-        
-        indices = sub2ind([nCells,dxL],rowIndices(:),columnIndices(:));
-        
-        %anticorrelatedRank = anticorrelatedData(rowIndices',columnIndices(:));
-        anticorrelatedRank(:) = anticorrelatedData(indices);
-        halfmatchedRank(:) = halfmatchedData(indices);
         
         rank = 1:9;
         
@@ -88,13 +68,22 @@ function PlotRank(varargin)
             maxSub = 3;
         end
         subplot(1,maxSub,subCount); hold on;
-        
+
         corrRank = mean(correlatedRank); hmRank = mean(halfmatchedRank); acRank = mean(anticorrelatedRank);
-        plot(rank,corrRank,'color',[0.8,0.1,0.1],'marker','o','markerfacecolor',[0.8,0.1,0.1], ...
+        
+        N = size(correlatedRank,1);
+        corrSEM = std(correlatedRank)/sqrt(N); hmSEM = std(halfmatchedRank)/sqrt(N); acSEM = std(anticorrelatedRank)/sqrt(N);
+        
+    
+        
+        E1=errorbar(rank,corrRank,corrSEM*1.96);
+        set(E1,'color',[0.8,0.1,0.1],'marker','o','markerfacecolor',[0.8,0.1,0.1], ...
             'linestyle',':','markersize',10,'linewidth',3);
-        plot(rank,hmRank,'color',[0.1,0.1,0.8],'marker','o','markerfacecolor',[0.1,0.1,0.8], ...
+        E2=errorbar(rank,hmRank,hmSEM*1.96);
+        set(E2,'color',[0.1,0.1,0.8],'marker','o','markerfacecolor',[0.1,0.1,0.8], ...
             'linestyle',':','markersize',10,'linewidth',3);
-        plot(rank,acRank,'color',[0,0,0],'marker','o','markerfacecolor',[0,0,0], ...
+        E3=errorbar(rank,acRank,acSEM*1.96);
+        set(E3,'color',[0,0,0],'marker','o','markerfacecolor',[0,0,0], ...
             'linestyle',':','markersize',10,'linewidth',3);
         
         xlabel('Rank','fontsize',20);
@@ -103,7 +92,7 @@ function PlotRank(varargin)
         set(leg,'fontsize',14);
         set(gca,'fontsize',18,'ytick',0:0.25:1);
         title(['Density: ',num2str(Base(d).density),' %'],'fontsize',22);
-        ylim([0.25,0.65]);
+        ylim([0,1]);
         
     end
     
@@ -163,3 +152,18 @@ function cost = intCost(N,P,Q,K);
     %sprintf('Current cost: %2.f',cost)
 end
 
+function z = linear_interp(x,y,K);
+    assert(length(x) == length(y),'x and y length must match');
+    
+    
+    x_new = linspace(min(x),max(x),K);
+    z = zeros(1,K);
+    
+    
+    z(1) = y(1); z(length(x_new)) = y(length(x));
+    
+    for j = 2:(length(x_new));
+        % First identify which point is the closest on either side
+        % 
+    end
+end
