@@ -2,8 +2,24 @@ function PlotRank(varargin)
 
     load('CuratedCells.mat');
     
-    figure();
+    myFig = figure();
     set(gcf,'color','white')
+    plotNormal(Base)
+    
+    mh = uimenu(myFig,'Label','Plot');
+    
+    % For the main plot
+    main = uimenu(mh,'Label','Normal rank','checked','on','callback',{@keydown_callback,Base,'normal'});
+    
+    % For the alternative plot
+    alt = uimenu(mh,'Label','By AC slope');
+    corr = uimenu(alt,'Label','Correlated','checked','off','callback',{@keydown_callback,Base,'alt','corr'});
+    hm = uimenu(alt,'Label','Half-matched','checked','off','callback',{@keydown_callback,Base,'alt','hm'});
+    ac = uimenu(alt,'Label','Anticorrelated','checked','off','callback',{@keydown_callback,Base,'alt','ac'});
+    
+end
+
+function plotNormal(Base)
     for d = [1,4];
         
         nCells = length(Base(d).Cells);
@@ -13,7 +29,7 @@ function PlotRank(varargin)
         end
 
         dxL = min(dxLengths);
-        costs = zeros(1,100);
+        
         if d == 1;
             rankData.lowDensity = zeros(nCells,dxL);
         elseif d == 4;
@@ -67,7 +83,7 @@ function PlotRank(varargin)
             subCount = 3;
             maxSub = 3;
         end
-        subplot(1,maxSub,subCount); hold on;
+        subplot(1,maxSub,subCount);
 
         corrRank = mean(correlatedRank); hmRank = mean(halfmatchedRank); acRank = mean(anticorrelatedRank);
         
@@ -75,10 +91,12 @@ function PlotRank(varargin)
         corrSEM = std(correlatedRank)/sqrt(N); hmSEM = std(halfmatchedRank)/sqrt(N); acSEM = std(anticorrelatedRank)/sqrt(N);
         
     
-        
+        hold off;
         E1=errorbar(rank,corrRank,corrSEM*1.96);
         set(E1,'color',[0.8,0.1,0.1],'marker','o','markerfacecolor',[0.8,0.1,0.1], ...
             'linestyle',':','markersize',10,'linewidth',3);
+        
+        hold on;
         E2=errorbar(rank,hmRank,hmSEM*1.96);
         set(E2,'color',[0.1,0.1,0.8],'marker','o','markerfacecolor',[0.1,0.1,0.8], ...
             'linestyle',':','markersize',10,'linewidth',3);
@@ -95,12 +113,149 @@ function PlotRank(varargin)
         ylim([0,1]);
         
     end
-    
-    
-    
-    
-    
+end
 
+
+function plotAlt(Base,type)
+
+    for d = [1,4];
+        
+        nCells = length(Base(d).Cells);
+        dxLengths = zeros(1,nCells);
+        for j = 1:nCells;
+            dxLengths(j) = length(Base(d).Cells(j).Dx);
+        end
+
+        dxL = min(dxLengths);
+        
+        if d == 1;
+            rankData.lowDensity = zeros(nCells,dxL);
+        elseif d == 4;
+            rankData.highDensity = zeros(nCells,dxL);
+        end
+        
+        
+        acSlopes = cat(1,Base(d).Cells.regAc);
+        acSlopes = acSlopes(:,2);
+        q50 = quantile(acSlopes,0.5);
+        
+        nLower = sum(acSlopes < q50);
+        nUpper = sum(acSlopes > q50);
+
+        
+        lowerPlotRank = zeros(nLower,dxL);
+        upperPlotRank = zeros(nUpper,dxL);
+        lowerCorrelatedRank = zeros(nLower,dxL);
+        lowerHalfmatchedRank = zeros(nLower,dxL);
+        lowerAnticorrelatedRank = zeros(nLower,dxL);
+        
+        upperCorrelatedRank = zeros(nUpper,dxL);
+        upperHalfmatchedRank = zeros(nUpper,dxL);
+        upperAnticorrelatedRank = zeros(nUpper,dxL);
+        
+        lowerCell = 0; upperCell = 0;
+        for cell = 1:nCells;
+            %% First we compute the rank order for each cell
+            
+            % Extract and normalize data
+            
+            correlatedResponse = Base(d).Cells(cell).correlatedResponse;
+            halfmatchedResponse = Base(d).Cells(cell).halfmatchedResponse;
+            anticorrelatedResponse = Base(d).Cells(cell).anticorrelatedResponse;
+            
+            [cRank,cIndex] = sort(correlatedResponse,'descend');
+            hmRank = halfmatchedResponse(cIndex);
+            acRank = anticorrelatedResponse(cIndex);
+            
+            Dx = Base(d).Cells(cell).Dx;
+            
+            
+            % Resample disparity values
+            newDx = linspace(min(Dx),max(Dx),dxL);
+            
+            cRank2 = interp1(Dx,cRank,newDx);
+            hmRank2 = interp1(Dx,hmRank,newDx);
+            acRank2 = interp1(Dx,acRank,newDx);
+            
+            maxC = max([cRank2,hmRank2,acRank2]); minC = min([cRank2,hmRank2,acRank2]);
+            
+            acSlope = Base(d).Cells(cell).regAc(2);
+            
+            if acSlope > q50;
+                upperCell = upperCell+1;
+                upperCorrelatedRank(upperCell,:) = (cRank2-minC)/(maxC-minC);
+                upperHalfmatchedRank(upperCell,:) = (hmRank2-minC)/(maxC-minC);
+                upperAnticorrelatedRank(upperCell,:) = (acRank2-minC)/(maxC-minC);
+                
+                switch type
+                    case 'corr'
+                        upperPlotRank(upperCell,:) = (cRank2-minC)/(maxC-minC);
+                    case 'hm'
+                        upperPlotRank(upperCell,:) = (hmRank2-minC)/(maxC-minC);
+                    case 'ac'
+                        upperPlotRank(upperCell,:) = (acRank2-minC)/(maxC-minC);
+                end
+                
+                % Remove this after:
+                upperHalfmatchedRank(upperCell,:) = (acRank2-minC)/(maxC-minC);
+            else
+                lowerCell = lowerCell+1;
+                switch type
+                    case 'corr'
+                        lowerPlotRank(lowerCell,:) = (cRank2-minC)/(maxC-minC);
+                    case 'hm'
+                        lowerPlotRank(lowerCell,:) = (hmRank2-minC)/(maxC-minC);
+                    case 'ac'
+                        lowerPlotRank(lowerCell,:) = (acRank2-minC)/(maxC-minC);
+                end
+                
+            end
+            
+
+        end
+        
+        rank = 1:9;
+        
+        if d == 1;
+            subCount = 1;
+            maxSub = 2;
+        elseif d == 4; 
+            subCount = 2;
+            maxSub = 2;
+        else
+            subCount = 3;
+            maxSub = 3;
+        end
+        subplot(1,maxSub,subCount); hold on;
+        
+        upperRank = mean(upperPlotRank);
+        lowerRank = mean(lowerPlotRank);
+        
+        N_lower = size(lowerPlotRank,1);
+        N_upper = size(upperPlotRank,1);
+        
+        lowerSEM = std(lowerPlotRank)/sqrt(N_lower);
+        upperSEM = std(upperPlotRank)/sqrt(N_upper);
+        hold off;
+        E1=errorbar(rank,lowerRank,lowerSEM*1.96);
+        set(E1,'color',[0.1,0.1,0.8],'marker','o','markerfacecolor',[0.1,0.1,0.8], ...
+            'linestyle',':','markersize',10,'linewidth',3);
+        hold on;
+        E2=errorbar(rank,upperRank,upperSEM*1.96);
+        set(E2,'color',[0.8,0.1,0.8],'marker','o','markerfacecolor',[0.8,0.1,0.8], ...
+            'linestyle',':','markersize',10,'linewidth',3);
+        
+        leg = legend([E1,E2],'Lower','Upper');
+                
+        xlabel('Rank','fontsize',20);
+        ylabel('Mean normalized response','fontsize',20);
+        
+        set(leg,'fontsize',14);
+        set(gca,'fontsize',18,'ytick',0:0.25:1);
+        title(['Density: ',num2str(Base(d).density),' %'],'fontsize',22);
+        ylim([0,1]);
+        
+    end
 end
 
 function [P,Q] = resampleCell(Cell,K,varargin)
@@ -138,7 +293,7 @@ function [P,Q] = resampleCell(Cell,K,varargin)
     end
 end
 
-function cost = intCost(N,P,Q,K);
+function cost = intCost(N,P,Q,K)
     % Usage: cost = intCost(N,P,Q,K);
     % N: Length of array
     % P: Numerator to be optimized
@@ -152,18 +307,18 @@ function cost = intCost(N,P,Q,K);
     %sprintf('Current cost: %2.f',cost)
 end
 
-function z = linear_interp(x,y,K);
-    assert(length(x) == length(y),'x and y length must match');
-    
-    
-    x_new = linspace(min(x),max(x),K);
-    z = zeros(1,K);
-    
-    
-    z(1) = y(1); z(length(x_new)) = y(length(x));
-    
-    for j = 2:(length(x_new));
-        % First identify which point is the closest on either side
-        % 
+function keydown_callback(myFig,evt,Base,type,varargin)
+    if nargin > 4
+        plotType = varargin{1};
+    else
+        plotType = 'none';
     end
+    
+    if strcmp(type,'normal');
+        plotNormal(Base);
+        
+    elseif strcmp(type,'alt');
+        plotAlt(Base,plotType);
+    end
+
 end
