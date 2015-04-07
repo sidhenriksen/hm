@@ -9,7 +9,7 @@ function PlotRank(varargin)
     mh = uimenu(myFig,'Label','Plot');
     
     % For the main plot
-    main = uimenu(mh,'Label','Normal rank','checked','on','callback',{@keydown_callback,Base,'normal'});
+    main = uimenu(mh,'Label','Normal rank','checked','off','callback',{@keydown_callback,Base,'normal'});
     
     % For the alternative plot
     alt = uimenu(mh,'Label','By AC slope');
