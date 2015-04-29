@@ -36,6 +36,7 @@ function PlotCurated(varargin)
     menux_CHMslope = uimenu(mainx,'Label','Correlated-HM slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
     menux_CACslope = uimenu(mainx,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
     menux_CMeanslope = uimenu(mainx,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
+    menux_HMCACslope = uimenu(mainx,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
     
     
     % Y menu
@@ -46,6 +47,7 @@ function PlotCurated(varargin)
     menuy_CHMslope = uimenu(mainy,'Label','Correlated-HM slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
     menuy_CACslope = uimenu(mainy,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
     menuy_CMeanslope = uimenu(mainy,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
+    menuy_HMCACslope = uimenu(mainy,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
     
 
     menuStats = uimenu(mh,'Label','Stats','Callback',{@show_stats,Base});
@@ -171,6 +173,8 @@ function plot_data(currentData);
     xtype = getappdata(gcf,'xdata');
     ytype = getappdata(gcf,'ydata');
     
+    lambda = 1/sqrt(10);
+    
     for cell = 1:nCells
         
         whichFile = strcmp(currentData(cell).filename,allExptNames);
@@ -193,6 +197,7 @@ function plot_data(currentData);
                     meanCACResp = (currentData(cell).correlatedResponse+ ...
                             currentData(cell).anticorrelatedResponse)'/2;
                     [x,~,~] = regression2(meanCACResp,corrResp);
+                    %[~,x,~] = fit_bothsubj2error(corrResp,meanCACResp,lambda);
                     
                 case 'CHMslope'
                     x = currentData(cell).regHm(2);
@@ -205,6 +210,15 @@ function plot_data(currentData);
                     meanCACResp = (currentData(cell).correlatedResponse+ ...
                             currentData(cell).anticorrelatedResponse)'/2;
                     [~,x,~] = regression2(meanCACResp,corrResp);
+                    
+                case 'HMCACslope'
+                    corrResp = currentData(cell).correlatedResponse';
+                    hmResp = currentData(cell).halfmatchedResponse';
+                    meanCACResp = (currentData(cell).correlatedResponse+ ...
+                            currentData(cell).anticorrelatedResponse)'/2;
+                    [~,hmslope,~] = regression2(hmResp,corrResp); % Change this to fit_bothsubj2error?
+                    [~,meanCACslope,~] = regression2(meanCACResp,corrResp);
+                    x = hmslope/meanCACslope;
             end
             
             switch ytype
@@ -231,6 +245,15 @@ function plot_data(currentData);
                     meanCACResp = (currentData(cell).correlatedResponse+ ...
                             currentData(cell).anticorrelatedResponse)'/2;
                     [~,y,~] = regression2(meanCACResp,corrResp);
+                    
+                case 'HMCACslope'
+                    corrResp = currentData(cell).correlatedResponse';
+                    hmResp = currentData(cell).halfmatchedResponse';
+                    meanCACResp = (currentData(cell).correlatedResponse+ ...
+                            currentData(cell).anticorrelatedResponse)'/2;
+                    [~,hmslope,~] = regression2(hmResp,corrResp); % Change this to fit_bothsubj2error?
+                    [~,meanCACslope,~] = regression2(meanCACResp,corrResp);
+                    y = hmslope/meanCACslope; % Change this to fit_bothsubj2error?
                     
             end
                 
@@ -275,6 +298,10 @@ function plot_data(currentData);
         case 'CMeanslope'
             xlab = 'Correlated-Mean CAC slope';
             xlims = [-1,1];
+            
+        case  'HMCACslope'
+            xlab = 'HM slope/mean CAC slope';
+            xlims = [-0.25,1.25];
     end
     
     switch ytype
@@ -301,6 +328,10 @@ function plot_data(currentData);
         case 'CMeanslope'
             ylab = 'Correlated-Mean CAC slope';
             ylims = [-1,1];
+            
+        case  'HMCACslope'
+            ylab = 'HM slope/mean CAC slope';
+            ylims = [-0.25,1.25];
     end
     
         
@@ -313,8 +344,8 @@ function plot_data(currentData);
     ylabel(ylab, 'fontsize', 20);
     ylim(ylims);
     xlim(xlims);
-    %set(gca,'XTick',-1:0.5:1,'fontsize',18);
-    set(gca,'YTick',-1:0.5:1,'fontsize',18);
+    set(gca,'XTick',-1:0.25:1,'fontsize',18);
+    set(gca,'YTick',-1:0.25:1,'fontsize',18);
 
     if isfield(axAppdata,'density');
         title(sprintf('Density: %i%', axAppdata.density),'fontsize', 24);
@@ -384,7 +415,7 @@ function TC_callback(myFig,evt,varargin);
     end
     
     if ~isfield(figData,'TCHandle') || tcFigDeleted;
-        newFig = figure();
+        newFig = figure(); setappdata(newFig,'plotCAC','Off');
         set(newFig,'color','white');
         figData.TCHandle = newFig;
         setappdata(myFig,'TCHandle',newFig);
@@ -415,6 +446,8 @@ function TC_callback(myFig,evt,varargin);
     else
         error('Error: This shouldn''t happen...');
     end
+    
+    %cacMenu = uimenu(myFig,'Label','Plot CAC','Checked','Off','Callback',{@plot_CAC_in_TC_plot,);
     
     xlabel('Disparity (deg)','fontsize',18);
     ylabel('Spikes per second','fontsize',18);
