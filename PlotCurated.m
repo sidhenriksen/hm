@@ -37,6 +37,8 @@ function PlotCurated(varargin)
     menux_CACslope = uimenu(mainx,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
     menux_CMeanslope = uimenu(mainx,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
     menux_HMCACslope = uimenu(mainx,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
+    menux_AUC = uimenu(mainx,'Label','AUC','Checked', 'off','Callback',{@make_subplots,Base,'AUC'});
+    menux_dprime = uimenu(mainx,'Label','d''','Checked', 'off','Callback',{@make_subplots,Base,'d'''});
     
     
     % Y menu
@@ -48,6 +50,8 @@ function PlotCurated(varargin)
     menuy_CACslope = uimenu(mainy,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
     menuy_CMeanslope = uimenu(mainy,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
     menuy_HMCACslope = uimenu(mainy,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
+    menuy_AUC = uimenu(mainy,'Label','AUC','Checked', 'off','Callback',{@make_subplots,Base,'AUC'});
+    menuy_dprime = uimenu(mainy,'Label','d''','Checked', 'off','Callback',{@make_subplots,Base,'d'''});
     
 
     menuStats = uimenu(mh,'Label','Stats','Callback',{@show_stats,Base});
@@ -219,6 +223,13 @@ function plot_data(currentData);
                     [~,hmslope,~] = regression2(hmResp,corrResp); % Change this to fit_bothsubj2error?
                     [~,meanCACslope,~] = regression2(meanCACResp,corrResp);
                     x = hmslope/meanCACslope;
+                    
+                case 'AUC';
+                    x = currentData(cell).AUC;
+                    
+                case 'd''';
+                    x = currentData(cell).dprime;
+                    
             end
             
             switch ytype
@@ -254,6 +265,12 @@ function plot_data(currentData);
                     [~,hmslope,~] = regression2(hmResp,corrResp); % Change this to fit_bothsubj2error?
                     [~,meanCACslope,~] = regression2(meanCACResp,corrResp);
                     y = hmslope/meanCACslope; % Change this to fit_bothsubj2error?
+                    
+                case 'AUC';
+                    y = currentData(cell).AUC;
+                    
+                case 'd''';
+                    y = currentData(cell).dprime;
                     
             end
                 
@@ -302,6 +319,14 @@ function plot_data(currentData);
         case  'HMCACslope'
             xlab = 'HM slope/mean CAC slope';
             xlims = [-0.25,1.25];
+            
+        case 'AUC'
+            xlab = 'AUC';
+            xlims = [0,1];
+            
+        case 'd'''
+            xlab = 'd''';
+            xlims = [-0.5,5];
     end
     
     switch ytype
@@ -332,9 +357,29 @@ function plot_data(currentData);
         case  'HMCACslope'
             ylab = 'HM slope/mean CAC slope';
             ylims = [-0.25,1.25];
+            
+        case 'AUC'
+            ylab = 'AUC';
+            ylims = [0,1];
+            
+        case 'd'''
+            ylab = 'd''';
+            ylims = [-0.5,5];
     end
     
-        
+    
+    if strcmp(xtype,'d''');
+        xticks = -0.5:0.5:5;
+    else
+        xticks = -1:0.5:1;
+    end
+    
+    if strcmp(ytype,'d''');
+        yticks = -0.5:0.5:5;
+    else
+        yticks = -1:0.5:1;
+    end
+    
     XYData.x = X;
     XYData.y = Y;
     setappdata(gca,'XYData',XYData);
@@ -344,8 +389,9 @@ function plot_data(currentData);
     ylabel(ylab, 'fontsize', 20);
     ylim(ylims);
     xlim(xlims);
-    set(gca,'XTick',-1:0.25:1,'fontsize',18);
-    set(gca,'YTick',-1:0.25:1,'fontsize',18);
+    
+    set(gca,'XTick',xticks,'fontsize',18);
+    set(gca,'YTick',yticks,'fontsize',18);
 
     if isfield(axAppdata,'density');
         title(sprintf('Density: %i%', axAppdata.density),'fontsize', 24);
@@ -366,10 +412,20 @@ function plot_data(currentData);
     
 
     % Draw some lines to split into quadrants
-    plot([0,0],[-1,1],'linewidth',1,'color','red','linestyle','--');
-    plot([-1,1],[0,0],'linewidth',1,'color','red','linestyle','--');
+    if strcmp(ytype,'AUC');
+        plot([-1,1],[0.5,0.5],'linewidth',1,'color','red','linestyle','--');
+       
+    else
+        plot([-1,1],[0,0],'linewidth',1,'color','red','linestyle','--'); 
+    end
     
-    plot([-1,1],[-1,1],'k -');
+    if strcmp(xtype,'AUC');
+        plot([0.5,0.5],[-1,1],'linewidth',1,'color','red','linestyle','--');
+    else
+        plot([0,0],[-1,1],'linewidth',1,'color','red','linestyle','--');
+    end
+    
+    
 
 end
 
