@@ -544,22 +544,24 @@ function TC_callback(myFig,evt,varargin);
                     'markersize',4,'markerfacecolor','b');
                 xlabel('Correlated response','fontsize',18);
                 ylabel('Halfmatched response','fontsize',18);
-                b = Cells(whichCell).regHm(2); m = Cells(whichCell).regHm(3);
-                corrMin = min(Cells(whichCell).correlatedResponse); corrMax = max(Cells(whichCell).correlatedResponse);
+                %b = Cells(whichCell).regHm(2); m = Cells(whichCell).regHm(3);
+                [r,b,m] = regression2(Cells(whichCell).halfmatchedResponse*2.5,Cells(whichCell).correlatedResponse*2.5);
+                corrMin = min(Cells(whichCell).correlatedResponse)*2.5; corrMax = max(Cells(whichCell).correlatedResponse)*2.5;
                 delta = corrMax*0.25; corrMin = corrMin-delta; corrMax = corrMax+delta;
-                line([corrMin,corrMax]*2.5,[m+corrMin*b,m+corrMax*b]*2.5,'linewidth',2,'linestyle','-','color','r');
-                title(['r= ', num2str(Cells(whichCell).regHm(1))])
+                line([corrMin,corrMax],[m+corrMin*b,m+corrMax*b],'linewidth',2,'linestyle','-','color','r');
+                title(['r= ', num2str(r)])
                 
             else
                 plot(Cells(whichCell).correlatedResponse*2.5,Cells(whichCell).anticorrelatedResponse*2.5,'o k',...
                     'markersize',4,'markerfacecolor','r');
                 xlabel('Correlated response','fontsize',18);
                 ylabel('Anticorrelated response','fontsize',18);
-                b = Cells(whichCell).regAc(2); m = Cells(whichCell).regAc(3);
-                corrMin = min(Cells(whichCell).correlatedResponse); corrMax = max(Cells(whichCell).correlatedResponse);
+                
+                [r,b,m] = regression2(Cells(whichCell).anticorrelatedResponse*2.5,Cells(whichCell).correlatedResponse*2.5);
+                corrMin = min(Cells(whichCell).correlatedResponse)*2.5; corrMax = max(Cells(whichCell).correlatedResponse)*2.5;
                 delta = corrMax*0.25; corrMin = corrMin-delta; corrMax = corrMax+delta;
-                line([corrMin,corrMax]*2.5,[m+corrMin*b,m+corrMax*b]*2.5,'linewidth',2,'linestyle','-','color','k');
-                title(['r= ', num2str(Cells(whichCell).regAc(1))])
+                line([corrMin,corrMax],[m+corrMin*b,m+corrMax*b],'linewidth',2,'linestyle','-','color','k');
+                title(['r= ', num2str(r)])
             end
             %reg = 
         elseif nargin > 2
