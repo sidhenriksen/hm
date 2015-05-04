@@ -39,10 +39,10 @@ function PlotCurated(varargin)
     menux_HMCACslope = uimenu(mainx,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
     
     menux_ROC = uimenu(mainx,'Label','ROC/d''');
-    menux_HMauc = uimenu(menux_ROC,'Label','HM AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
-    menux_HMdprime = uimenu(menux_ROC,'Label','HM d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
-    menux_Cauc = uimenu(menux_ROC,'Label','C AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
-    menux_Cdprime = uimenu(menux_ROC,'Label','C d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
+    menux_HMauc = uimenu(menux_ROC,'Label','Half-matched AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
+    menux_HMdprime = uimenu(menux_ROC,'Label','Half-matched d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
+    menux_Cauc = uimenu(menux_ROC,'Label','Correlated AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
+    menux_Cdprime = uimenu(menux_ROC,'Label','Correlated d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
     
     
     % Y menu
@@ -56,10 +56,10 @@ function PlotCurated(varargin)
     menuy_HMCACslope = uimenu(mainy,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
     
     menuy_ROC = uimenu(mainy,'Label','ROC/d''');
-    menuy_HMauc = uimenu(menuy_ROC,'Label','HM AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
-    menuy_HMdprime = uimenu(menuy_ROC,'Label','HM d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
-    menuy_Cauc = uimenu(menuy_ROC,'Label','C AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
-    menuy_Cdprime = uimenu(menuy_ROC,'Label','C d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
+    menuy_HMauc = uimenu(menuy_ROC,'Label','Half-matched AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
+    menuy_HMdprime = uimenu(menuy_ROC,'Label','Half-matched d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
+    menuy_Cauc = uimenu(menuy_ROC,'Label','Correlated AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
+    menuy_Cdprime = uimenu(menuy_ROC,'Label','Correlated d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
     
 
     menuStats = uimenu(mh,'Label','Stats','Callback',{@show_stats,Base});
@@ -398,7 +398,7 @@ function plot_data(currentData);
             ylab = 'AC slope';
             ylims = [-1,1];
             
-        case 'CMeanslope'
+        case 'CMeanslope'for half-matched and anticorrelated
             ylab = 'Mean CAC slope';
             ylims = [-1,1];
             
@@ -425,13 +425,13 @@ function plot_data(currentData);
     
     
     if ~isempty(strfind(xtype,'d'''));
-        xticks = -0.5:0.5:5;
+        xticks = -1:2:10;
     else
         xticks = -1:0.5:1;
     end
     
     if ~isempty(strfind(ytype,'d'''));
-        yticks = -0.5:0.5:5;
+        yticks = -1:2:10;
     else
         yticks = -1:0.5:1;
     end
@@ -469,16 +469,16 @@ function plot_data(currentData);
 
     % Draw some lines to split into quadrants
     if ~isempty(strfind(ytype,'AUC'));
-        plot([-1,1],[0.5,0.5],'linewidth',1,'color','red','linestyle','--');
+        plot([-20,20],[0.5,0.5],'linewidth',1,'color','red','linestyle','--');
        
     else
-        plot([-1,1],[0,0],'linewidth',1,'color','red','linestyle','--'); 
+        plot([-20,20],[0,0],'linewidth',1,'color','red','linestyle','--'); 
     end
     
     if ~isempty(strfind(xtype,'AUC'));
-        plot([0.5,0.5],[-1,1],'linewidth',1,'color','red','linestyle','--');
+        plot([0.5,0.5],[-20,20],'linewidth',1,'color','red','linestyle','--');
     else
-        plot([0,0],[-1,1],'linewidth',1,'color','red','linestyle','--');
+        plot([0,0],[-20,20],'linewidth',1,'color','red','linestyle','--');
     end
     
     
