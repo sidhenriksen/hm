@@ -29,29 +29,37 @@ function PlotCurated(varargin)
     %%% This is a bit too much work right now. Might do this later.
     
     % X menu
-    menux_CHMr = uimenu(mainx,'Label','Correlated-HM r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
-    menux_CACr = uimenu(mainx,'Label','Correlated-AC r','Checked', 'off','Callback',{@make_subplots,Base,'CACr'});
-    menux_CMeanr = uimenu(mainx,'Label','Correlated-Mean CAC r','Checked', 'off','Callback',{@make_subplots,Base,'CMeanr'});
+    menux_CHMr = uimenu(mainx,'Label','Half-matched r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
+    menux_CACr = uimenu(mainx,'Label','Anticorrelated r','Checked', 'off','Callback',{@make_subplots,Base,'CACr'});
+    menux_CMeanr = uimenu(mainx,'Label','Mean CAC r','Checked', 'off','Callback',{@make_subplots,Base,'CMeanr'});
     
-    menux_CHMslope = uimenu(mainx,'Label','Correlated-HM slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
-    menux_CACslope = uimenu(mainx,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
-    menux_CMeanslope = uimenu(mainx,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
+    menux_CHMslope = uimenu(mainx,'Label','Half-matched slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
+    menux_CACslope = uimenu(mainx,'Label','Anticorrelated slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
+    menux_CMeanslope = uimenu(mainx,'Label','Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
     menux_HMCACslope = uimenu(mainx,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
-    menux_AUC = uimenu(mainx,'Label','AUC','Checked', 'off','Callback',{@make_subplots,Base,'AUC'});
-    menux_dprime = uimenu(mainx,'Label','d''','Checked', 'off','Callback',{@make_subplots,Base,'d'''});
+    
+    menux_ROC = uimenu(mainx,'Label','ROC/d''');
+    menux_HMauc = uimenu(menux_ROC,'Label','HM AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
+    menux_HMdprime = uimenu(menux_ROC,'Label','HM d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
+    menux_Cauc = uimenu(menux_ROC,'Label','C AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
+    menux_Cdprime = uimenu(menux_ROC,'Label','C d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
     
     
     % Y menu
-    menuy_CHMr = uimenu(mainy,'Label','Correlated-HM r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
-    menuy_CACr = uimenu(mainy,'Label','Correlated-AC r','Checked', 'off','Callback',{@make_subplots,Base,'CACr'});
-    menuy_CMeanr = uimenu(mainy,'Label','Correlated-Mean CAC r','Checked', 'off','Callback',{@make_subplots,Base,'CMeanr'});
+    menuy_CHMr = uimenu(mainy,'Label','Half-matched r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
+    menuy_CACr = uimenu(mainy,'Label','Anticorrelated r','Checked', 'off','Callback',{@make_subplots,Base,'CACr'});
+    menuy_CMeanr = uimenu(mainy,'Label','Mean CAC r','Checked', 'off','Callback',{@make_subplots,Base,'CMeanr'});
     
-    menuy_CHMslope = uimenu(mainy,'Label','Correlated-HM slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
-    menuy_CACslope = uimenu(mainy,'Label','Correlated-AC slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
-    menuy_CMeanslope = uimenu(mainy,'Label','Correlated-Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
+    menuy_CHMslope = uimenu(mainy,'Label','Half-matched slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
+    menuy_CACslope = uimenu(mainy,'Label','Anticorrelated slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
+    menuy_CMeanslope = uimenu(mainy,'Label','Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
     menuy_HMCACslope = uimenu(mainy,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
-    menuy_AUC = uimenu(mainy,'Label','AUC','Checked', 'off','Callback',{@make_subplots,Base,'AUC'});
-    menuy_dprime = uimenu(mainy,'Label','d''','Checked', 'off','Callback',{@make_subplots,Base,'d'''});
+    
+    menuy_ROC = uimenu(mainy,'Label','ROC/d''');
+    menuy_HMauc = uimenu(menuy_ROC,'Label','HM AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
+    menuy_HMdprime = uimenu(menuy_ROC,'Label','HM d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
+    menuy_Cauc = uimenu(menuy_ROC,'Label','C AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
+    menuy_Cdprime = uimenu(menuy_ROC,'Label','C d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
     
 
     menuStats = uimenu(mh,'Label','Stats','Callback',{@show_stats,Base});
@@ -97,17 +105,31 @@ function make_subplots(myFig,evt,Base,type)
     axchange = '';
     
     if ~isempty(events(evt));
-        rootMenu = evt.Source.Parent.Label;
-        if strcmp(rootMenu,'Main: x axis');
+        rootMenu = evt.Source.Parent;
+        
+        
+        if strcmp(rootMenu.Label,'Main: x axis');
 
             setappdata(gcf,'xdata',type)
             axchange = 'x';
 
-        elseif strcmp(rootMenu,'Main: y axis');
+        elseif strcmp(rootMenu.Label,'Main: y axis');
             setappdata(gcf,'ydata',type);
             axchange = 'y';
         else
-            error('Error: This isn''t supposed to happen');
+            rootMenu = rootMenu.Parent;
+                    
+            if strcmp(rootMenu.Label,'Main: x axis');
+
+                setappdata(gcf,'xdata',type)
+                axchange = 'x';
+
+            elseif strcmp(rootMenu.Label,'Main: y axis');
+                setappdata(gcf,'ydata',type);
+                axchange = 'y';
+            end
+            
+            %error('Error: This isn''t supposed to happen');
         end
     end
     
@@ -224,15 +246,25 @@ function plot_data(currentData);
                     [~,meanCACslope,~] = regression2(meanCACResp,corrResp);
                     x = hmslope/meanCACslope;
                     
-                case 'AUC';
-                    x = currentData(cell).AUC;
+                case 'HM AUC';
+                    x = currentData(cell).HMauc;
                     
-                case 'd''';
-                    x = currentData(cell).dprime;
+                case 'HM d''';
+                    x = currentData(cell).HMdprime;
                     
+                case 'C AUC';
+                    x = currentData(cell).Cauc;
+                    
+                case 'C d''';
+                    x = currentData(cell).Cdprime;
             end
             
             switch ytype
+                case 'HM AUC';
+                    y = currentData(cell).HMauc;
+                    
+                case 'HM d''';
+                    y = currentData(cell).HMdprime;
                 case 'CHMr'
                     y = currentData(cell).regHm(1);
                     
@@ -266,11 +298,17 @@ function plot_data(currentData);
                     [~,meanCACslope,~] = regression2(meanCACResp,corrResp);
                     y = hmslope/meanCACslope; % Change this to fit_bothsubj2error?
                     
-                case 'AUC';
-                    y = currentData(cell).AUC;
+                case 'HM AUC';
+                    y = currentData(cell).HMauc;
                     
-                case 'd''';
-                    y = currentData(cell).dprime;
+                case 'HM d''';
+                    y = currentData(cell).HMdprime;
+                    
+                case 'C AUC';
+                    y = currentData(cell).Cauc;
+                    
+                case 'C d''';
+                    y = currentData(cell).Cdprime;
                     
             end
                 
@@ -293,88 +331,106 @@ function plot_data(currentData);
     
     switch xtype
         case 'CHMr'
-            xlab = 'Correlated-HM r';
+            xlab = 'HM r';
             xlims = [-1,1];
 
         case 'CACr'
-            xlab = 'Correlated-AC r';
+            xlab = 'AC r';
             xlims = [-1,1];            
             
         case 'CMeanr'
-            xlab = 'Correlated-Mean CAC r';
+            xlab = 'Mean CAC r';
             xlims = [-0.2,1];
             
         case 'CHMslope'
-            xlab = 'Correlated-HM slope';
+            xlab = 'HM slope';
             xlims = [-0.35,0.35];
             
         case 'CACslope'
-            xlab = 'Correlated-AC slope';
+            xlab = 'AC slope';
             xlims = [-1,1];
            
         case 'CMeanslope'
-            xlab = 'Correlated-Mean CAC slope';
+            xlab = 'Mean CAC slope';
             xlims = [-1,1];
             
         case  'HMCACslope'
             xlab = 'HM slope/mean CAC slope';
             xlims = [-0.25,1.25];
             
-        case 'AUC'
-            xlab = 'AUC';
+        case 'HM AUC'
+            xlab = 'Half-matched AUC';
             xlims = [0,1];
             
-        case 'd'''
-            xlab = 'd''';
+        case 'HM d'''
+            xlab = 'Half-matched d''';
             xlims = [-0.5,5];
+            
+        case 'C AUC'
+            xlab = 'Correlated AUC';
+            xlims = [0,1];
+            
+        case 'C d'''
+            xlab = 'Correlated d''';
+            xlims = [-0.5,10];
+            
+           
     end
     
     switch ytype
         case 'CHMr'
-            ylab = 'Correlated-HM r';
+            ylab = 'HM r';
             ylims = [-1,1];
 
         case 'CACr'
-            ylab = 'Correlated-AC r';
+            ylab = 'Anticorrelated r';
             ylims = [-1,1];            
             
         case 'CMeanr'
-            ylab = 'Correlated-Mean CAC r';
+            ylab = 'Mean CAC r';
             ylims = [-0.2,1];
             
         case 'CHMslope'
-            ylab = 'Correlated-HM slope';
+            ylab = 'HM slope';
             ylims = [-0.35,0.35];
             
         case 'CACslope'
-            ylab = 'Correlated-AC slope';
+            ylab = 'AC slope';
             ylims = [-1,1];
             
         case 'CMeanslope'
-            ylab = 'Correlated-Mean CAC slope';
+            ylab = 'Mean CAC slope';
             ylims = [-1,1];
             
         case  'HMCACslope'
             ylab = 'HM slope/mean CAC slope';
             ylims = [-0.25,1.25];
             
-        case 'AUC'
-            ylab = 'AUC';
+        case 'HM AUC'
+            ylab = 'Half-matched AUC';
             ylims = [0,1];
             
-        case 'd'''
-            ylab = 'd''';
+        case 'HM d'''
+            ylab = 'Half-matched d''';
             ylims = [-0.5,5];
+                
+        case 'C AUC'
+            ylab = 'Correlated AUC';
+            ylims = [0,1];
+            
+        case 'C d'''
+            ylab = 'Correlated d''';
+            ylims = [-0.5,10];
     end
     
     
-    if strcmp(xtype,'d''');
+    if ~isempty(strfind(xtype,'d'''));
         xticks = -0.5:0.5:5;
     else
         xticks = -1:0.5:1;
     end
     
-    if strcmp(ytype,'d''');
+    if ~isempty(strfind(ytype,'d'''));
         yticks = -0.5:0.5:5;
     else
         yticks = -1:0.5:1;
@@ -412,14 +468,14 @@ function plot_data(currentData);
     
 
     % Draw some lines to split into quadrants
-    if strcmp(ytype,'AUC');
+    if ~isempty(strfind(ytype,'AUC'));
         plot([-1,1],[0.5,0.5],'linewidth',1,'color','red','linestyle','--');
        
     else
         plot([-1,1],[0,0],'linewidth',1,'color','red','linestyle','--'); 
     end
     
-    if strcmp(xtype,'AUC');
+    if ~isempty(strfind(xtype,'AUC'));
         plot([0.5,0.5],[-1,1],'linewidth',1,'color','red','linestyle','--');
     else
         plot([0,0],[-1,1],'linewidth',1,'color','red','linestyle','--');
