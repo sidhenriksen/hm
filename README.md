@@ -1,6 +1,6 @@
 # hm
 This repository provides Matlab code for an interactive visualization of data we have collected
-from V1 neurons in the macaque brain. Running PlotClusters.m will bring up an interactive plot.
+from V1 neurons in the macaque brain. Running PlotCurated.m will bring up an interactive plot.
 Each point in the plot corresponds to a cell, clicking on the cell will bring up the tuning curves
 of that cell to correlated, anti-correlated and half-matched random dot stereograms. Half-matched
 random dot stereograms were introduced in Doi et al. (2011, 2013, 2014).
