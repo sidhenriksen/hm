@@ -552,9 +552,10 @@ function TC_callback(myFig,evt,varargin);
         setappdata(myFig,'TCHandle',newFig);
         setappdata(myFig,'Errorbars','Off');
         setappdata(figData.TCHandle,'PseudoParent',myFig);
-        viewMenu = uimenu(figData.TCHandle,'Label','View');
-        toggleErrorbars = uimenu(viewMenu,'Label','Error bars (95% CIs)','Checked','off','Callback',{@set_errorbars,myFig,evt});
-        setappdata(figData.TCHandle,'ErrorbarsToggled','False');
+        toggleMenu = uimenu(figData.TCHandle,'Label','Toggle');
+        toggleErrorbarsSEM = uimenu(toggleMenu,'Label','Error bars (95% CIs)','Checked','off','Callback',{@set_errorbars,myFig,evt,'SEM'});
+        toggleErrorbarsSD = uimenu(toggleMenu,'Label','Error bars (+/- 1 SD)','Checked','off','Callback',{@set_errorbars,myFig,evt,'SD'});
+        setappdata(figData.TCHandle,'ErrorbarsToggled','None');
     end
     
     errorbarsToggled = getappdata(figData.TCHandle,'ErrorbarsToggled');
@@ -615,27 +616,40 @@ function TC_callback(myFig,evt,varargin);
         Dx = Cells(whichCell).Dx;
         menus = get(figData.TCHandle,'Children');
         
-        viewMenu = menus(1); errorbarMenu = viewMenu.Children;
+        toggleMenu = menus(1); errorbarMenu = toggleMenu.Children;
         
-        if ~strcmpi(errorbarMenu.Checked,'On');
+        if ~any(strcmpi({errorbarMenu.Checked},'On'));
             plot(Dx,Cells(whichCell).halfmatchedResponse*2.5,'b -- o', ...
             Dx,Cells(whichCell).correlatedResponse*2.5,'r -- o', ...
             Dx,Cells(whichCell).anticorrelatedResponse*2.5,'k -- o', ...
             'linewidth',3,'markersize',5,'markerfacecolor','k');
         else
             
+            barType = getappdata(figData.TCHandle,'ErrorbarsToggled');
+            
+            switch barType
+                case 'SEM'
+                    errorbarHM = Cells(whichCell).halfmatchedSEM*1.96;
+                    errorbarC = Cells(whichCell).correlatedSEM*1.96;
+                    errorbarAC = Cells(whichCell).anticorrelatedSEM*1.96;
+                case 'SD'
+                    errorbarHM = Cells(whichCell).halfmatchedSD;
+                    errorbarC = Cells(whichCell).correlatedSD;
+                    errorbarAC = Cells(whichCell).anticorrelatedSD;
+            end
+            
             E1=errorbar(Dx,Cells(whichCell).halfmatchedResponse*2.5,...
-                Cells(whichCell).halfmatchedSEM*1.96);
+                errorbarHM*2.5);
             set(E1,'linewidth',3,'color','b','marker','o','linestyle','--',...
             'markersize',5,'markerfacecolor','b');
             hold on;
             E2=errorbar(Dx,Cells(whichCell).correlatedResponse*2.5,...
-                Cells(whichCell).correlatedSEM*1.96);
+                errorbarC*2.5);
             set(E2,'linewidth',3,'color','r','marker','o','linestyle','--',...
             'markersize',5,'markerfacecolor','r')
             
             E3=errorbar(Dx,Cells(whichCell).anticorrelatedResponse*2.5,...
-                Cells(whichCell).anticorrelatedSEM*1.96);
+                errorbarAC*2.5);
             set(E3,'linewidth',3,'color','k','marker','o','linestyle','--',...
             'markersize',5,'markerfacecolor','k')
             hold off;
@@ -837,17 +851,34 @@ function show_stats(myFig,evt,Base);
     set(gcf,'color','white','position',[100,200,550,400])
 end
 
-function set_errorbars(menu,menuEvt,myFig,evt)
+function set_errorbars(menu,menuEvt,myFig,evt,barType)
     
+
+    % We only want to be able to tick one at a time..
+    parentMenu = menu.Parent;
+    siblingMenus = parentMenu.Children;
+    for m = 1:length(siblingMenus);
+        currentMenu = siblingMenus(m);
+        
+        if menu ~= currentMenu;
+            set(currentMenu,'Checked','Off');
+        end
+        
+    end
+
     if strcmpi(menu.Checked,'On');
         set(menu,'Checked','Off');
     else
         set(menu,'Checked','On');
     end
     
+    
+    
+    
+    
     figData = getappdata(myFig);
     
-    setappdata(figData.TCHandle,'ErrorbarsToggled','True');
+    setappdata(figData.TCHandle,'ErrorbarsToggled',barType);
     
     TC_callback(myFig,evt);
     
