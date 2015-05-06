@@ -26,7 +26,9 @@ function PlotCurated(varargin)
 
     setappdata(myFig,'Base',Base);
     
-    %%% This is a bit too much work right now. Might do this later.
+    % This first segment defines the menus; all call make_subplots to
+    % populate the subplots, together with Base (consisting of all the
+    % data) and a string which specifies what we're plotting.
     
     % X menu
     menux_CHMr = uimenu(mainx,'Label','Half-matched r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
@@ -38,36 +40,45 @@ function PlotCurated(varargin)
     menux_CMeanslope = uimenu(mainx,'Label','Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
     menux_HMCACslope = uimenu(mainx,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
     
+    %%% ROC menu
     menux_ROC = uimenu(mainx,'Label','ROC/d''');
-    menux_HMauc = uimenu(menux_ROC,'Label','Half-matched AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
-    menux_HMdprime = uimenu(menux_ROC,'Label','Half-matched d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
-    menux_Cauc = uimenu(menux_ROC,'Label','Correlated AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
-    menux_Cdprime = uimenu(menux_ROC,'Label','Correlated d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
+        menux_HMauc = uimenu(menux_ROC,'Label','Half-matched AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
+        menux_HMaucZ = uimenu(menux_ROC,'Label','Half-matched AUC (Z-score)','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC Z'});
+        menux_HMdprime = uimenu(menux_ROC,'Label','Half-matched d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
+        menux_Cauc = uimenu(menux_ROC,'Label','Correlated AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
+        menux_CaucZ = uimenu(menux_ROC,'Label','Correlated AUC (Z-score)','Checked', 'off','Callback',{@make_subplots,Base,'C AUC Z'});
+        menux_Cdprime = uimenu(menux_ROC,'Label','Correlated d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
     
-    
+
     % Y menu
     menuy_CHMr = uimenu(mainy,'Label','Half-matched r','Checked', 'on','Callback',{@make_subplots,Base,'CHMr'});
     menuy_CACr = uimenu(mainy,'Label','Anticorrelated r','Checked', 'off','Callback',{@make_subplots,Base,'CACr'});
     menuy_CMeanr = uimenu(mainy,'Label','Mean CAC r','Checked', 'off','Callback',{@make_subplots,Base,'CMeanr'});
-    
+
     menuy_CHMslope = uimenu(mainy,'Label','Half-matched slope','Checked', 'off','Callback',{@make_subplots,Base,'CHMslope'});
     menuy_CACslope = uimenu(mainy,'Label','Anticorrelated slope','Checked', 'off','Callback',{@make_subplots,Base,'CACslope'});
     menuy_CMeanslope = uimenu(mainy,'Label','Mean CAC slope','Checked', 'off','Callback',{@make_subplots,Base,'CMeanslope'});
     menuy_HMCACslope = uimenu(mainy,'Label','Mean CAC slope/HM slope','Checked', 'off','Callback',{@make_subplots,Base,'HMCACslope'});
-    
-    menuy_ROC = uimenu(mainy,'Label','ROC/d''');
-    menuy_HMauc = uimenu(menuy_ROC,'Label','Half-matched AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
-    menuy_HMdprime = uimenu(menuy_ROC,'Label','Half-matched d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
-    menuy_Cauc = uimenu(menuy_ROC,'Label','Correlated AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
-    menuy_Cdprime = uimenu(menuy_ROC,'Label','Correlated d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
-    
 
+    %%% ROC menu
+    menuy_ROC = uimenu(mainy,'Label','ROC/d''');
+        menuy_HMauc = uimenu(menuy_ROC,'Label','Half-matched AUC','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC'});
+        menuy_HMaucZ = uimenu(menuy_ROC,'Label','Half-matched AUC (Z-score)','Checked', 'off','Callback',{@make_subplots,Base,'HM AUC Z'});
+        menuy_HMdprime = uimenu(menuy_ROC,'Label','Half-matched d''','Checked', 'off','Callback',{@make_subplots,Base,'HM d'''});
+
+        menuy_Cauc = uimenu(menuy_ROC,'Label','Correlated AUC','Checked', 'off','Callback',{@make_subplots,Base,'C AUC'});
+        menuy_CaucZ = uimenu(menuy_ROC,'Label','Correlated AUC (Z-score)','Checked', 'off','Callback',{@make_subplots,Base,'C AUC Z'});
+        menuy_Cdprime = uimenu(menuy_ROC,'Label','Correlated d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
+    
+    % Misc
     menuStats = uimenu(mh,'Label','Stats','Callback',{@show_stats,Base});
     menuPenetrations = uimenu(mh,'Label','Penetrations','Callback',{@plot_penetrations,Base});
     menuRank = uimenu(mh,'Label','Rank','Callback',{@PlotRank});
     menuSmile = uimenu(mh,'Label','Smile','Callback',{@smile});
     
     
+    
+    % This section initializes the plot and figure data
     count = 0;
     for dd = [1,ddmax];
         count = count+1;
@@ -90,12 +101,16 @@ function PlotCurated(varargin)
 end
 
 function make_subplots(myFig,evt,Base,type)
-    
+    % Function to populate the subplots of the main figure
+    % This will take Base, which is the structure generated by
+    % CurateCells.m, and a string as argument. The string should specify
+    % what we're plotting on the relevant axis.
     count = 0;
     ddmax = length(Base);
     ch = get(gcf,'Children');
     
-    % Need to redo this thing...
+    % This doesn't work for older version of Matlab; I don't have easy
+    % access to an older version so debugging becomes a bit tricky.
     plotMenu = get(ch(1),'Children');
     xmainMenu = plotMenu(length(plotMenu));
     ymainMenu = plotMenu(length(plotMenu)-1);
@@ -171,9 +186,11 @@ end
 
 
 
-
-
 function plot_data(currentData);
+    % This is a function that actually plots the data in the highlighted
+    % subplot. This function will take the figure data that has been set
+    % elsewhere and will plot the correct thing. This is really lengthy.
+    
     monkeys = {'jbe','lem'};
     figAppdata = getappdata(gcf);
     axAppdata = getappdata(gca);
@@ -210,7 +227,9 @@ function plot_data(currentData);
         if ~isnan(currentData(cell).DDI);
             currentMonkey = currentData(cell).filename(9:11);
             
-            % We choose from a range of data types to plot
+            % We choose from a range of data types to plot;
+            % This is really long, but simply chooses the correct values
+            % to plot on the x and y axes.
             switch xtype
                 case 'CHMr'
                     x = currentData(cell).regHm(1);
@@ -249,11 +268,17 @@ function plot_data(currentData);
                 case 'HM AUC';
                     x = currentData(cell).HMauc;
                     
+                case 'HM AUC Z';
+                    x = currentData(cell).HMaucZ;
+                    
                 case 'HM d''';
                     x = currentData(cell).HMdprime;
                     
                 case 'C AUC';
                     x = currentData(cell).Cauc;
+                    
+                case 'C AUC Z';
+                    x = currentData(cell).CaucZ;
                     
                 case 'C d''';
                     x = currentData(cell).Cdprime;
@@ -300,12 +325,16 @@ function plot_data(currentData);
                     
                 case 'HM AUC';
                     y = currentData(cell).HMauc;
+                case 'HM AUC Z';
+                    y = currentData(cell).HMaucZ;
                     
                 case 'HM d''';
                     y = currentData(cell).HMdprime;
                     
                 case 'C AUC';
                     y = currentData(cell).Cauc;
+                case 'C AUC Z';
+                    y = currentData(cell).CaucZ;
                     
                 case 'C d''';
                     y = currentData(cell).Cdprime;
@@ -313,6 +342,7 @@ function plot_data(currentData);
             end
                 
             
+            %% This is where we actually plot the data
             % Different shapes for jbe and lem
             if strcmp(currentMonkey,monkeys{1});
                 plot(x,y,'k','marker','s','markersize',...
@@ -329,6 +359,8 @@ function plot_data(currentData);
         end
     end
     
+    % Again, very lengty, but simply chooses appropriate xlims/ylims and 
+    % axis labels
     switch xtype
         case 'CHMr'
             xlab = 'HM r';
@@ -362,12 +394,20 @@ function plot_data(currentData);
             xlab = 'Half-matched AUC';
             xlims = [0,1];
             
+        case 'HM AUC Z'
+            xlab = 'Half-matched AUC (Z-score)';
+            xlims = [0,1];
+            
         case 'HM d'''
             xlab = 'Half-matched d''';
             xlims = [-0.5,5];
             
         case 'C AUC'
             xlab = 'Correlated AUC';
+            xlims = [0,1];
+            
+        case 'C AUC Z'
+            xlab = 'Correlated AUC (Z-score)';
             xlims = [0,1];
             
         case 'C d'''
@@ -398,7 +438,7 @@ function plot_data(currentData);
             ylab = 'AC slope';
             ylims = [-1,1];
             
-        case 'CMeanslope'for half-matched and anticorrelated
+        case 'CMeanslope' %for half-matched and anticorrelated
             ylab = 'Mean CAC slope';
             ylims = [-1,1];
             
@@ -410,6 +450,10 @@ function plot_data(currentData);
             ylab = 'Half-matched AUC';
             ylims = [0,1];
             
+        case 'HM AUC Z'
+            ylab = 'Half-matched AUC (Z-score)';
+            ylims = [0,1];
+            
         case 'HM d'''
             ylab = 'Half-matched d''';
             ylims = [-0.5,5];
@@ -418,12 +462,16 @@ function plot_data(currentData);
             ylab = 'Correlated AUC';
             ylims = [0,1];
             
+        case 'C AUC Z'
+            ylab = 'Correlated AUC (Z-score)';
+            ylims = [0,1];
+            
         case 'C d'''
             ylab = 'Correlated d''';
             ylims = [-0.5,10];
     end
     
-    
+    % Select appropriate ticks for purteh lookin' plot
     if ~isempty(strfind(xtype,'d'''));
         xticks = -1:2:10;
     else
@@ -436,6 +484,7 @@ function plot_data(currentData);
         yticks = -1:0.5:1;
     end
     
+    % Set XYData!
     XYData.x = X;
     XYData.y = Y;
     setappdata(gca,'XYData',XYData);
@@ -467,7 +516,8 @@ function plot_data(currentData);
     text(0.4,0.7,['lem: ',num2str(lemCount),' cells']);
     
 
-    % Draw some lines to split into quadrants
+    % Draw some lines to split into quadrants; where to draw this depends
+    % on what we're plotting
     if ~isempty(strfind(ytype,'AUC'));
         plot([-20,20],[0.5,0.5],'linewidth',1,'color','red','linestyle','--');
        
@@ -487,12 +537,36 @@ end
 
 
 function TC_callback(myFig,evt,varargin);
+    % Callback function to plot tuning curves
+    
+    figData = getappdata(myFig);
+    % If this hasn't been called before, assign a new figure handle
+    if isfield(figData,'TCHandle');
+        tcFigDeleted = ~ishandle(figData.TCHandle);
+    end
+    
+    if ~isfield(figData,'TCHandle') || tcFigDeleted;
+        newFig = figure(); setappdata(newFig,'plotCAC','Off');
+        set(newFig,'color','white');
+        figData.TCHandle = newFig;
+        setappdata(myFig,'TCHandle',newFig);
+        setappdata(myFig,'Errorbars','Off');
+        setappdata(figData.TCHandle,'PseudoParent',myFig);
+        viewMenu = uimenu(figData.TCHandle,'Label','View');
+        toggleErrorbars = uimenu(viewMenu,'Label','Error bars (95% CIs)','Checked','off','Callback',{@set_errorbars,myFig,evt});
+        setappdata(figData.TCHandle,'ErrorbarsToggled','False');
+    end
+    
+    errorbarsToggled = getappdata(figData.TCHandle,'ErrorbarsToggled');
+    currentAxis = myFig.CurrentAxes;
+    axisData = getappdata(currentAxis);
+    
 
-    currentPoint = get(gca,'currentpoint');
+    currentPoint = get(currentAxis,'currentpoint');    
+
     
-    axisData = getappdata(gca);
-    figData = getappdata(gcf);
-    
+            
+        
     % Get data
     Cells = axisData.Cells;
     XYData = axisData.XYData;
@@ -521,17 +595,8 @@ function TC_callback(myFig,evt,varargin);
     
 
     
-    % If this hasn't been called before, assign a new figure handle
-    if isfield(figData,'TCHandle');
-        tcFigDeleted = ~ishandle(figData.TCHandle);
-    end
+
     
-    if ~isfield(figData,'TCHandle') || tcFigDeleted;
-        newFig = figure(); setappdata(newFig,'plotCAC','Off');
-        set(newFig,'color','white');
-        figData.TCHandle = newFig;
-        setappdata(myFig,'TCHandle',newFig);
-    end
     
     figure(figData.TCHandle);
     
@@ -542,16 +607,40 @@ function TC_callback(myFig,evt,varargin);
     end
     
     
-    subplot(1,maxSubplots,subplotNumber);
+    subplot(1,maxSubplots,subplotNumber); hold off;
     if whichCell > 0;
         cellName = [Cells(whichCell).filename(18:24),'-cell',num2str(Cells(whichCell).cellnumber)];
         
         set(gca,'fontsize',18);
         Dx = Cells(whichCell).Dx;
-        plot(Dx,Cells(whichCell).halfmatchedResponse*2.5,'b -- o', ...
+        menus = get(figData.TCHandle,'Children');
+        
+        viewMenu = menus(1); errorbarMenu = viewMenu.Children;
+        
+        if ~strcmpi(errorbarMenu.Checked,'On');
+            plot(Dx,Cells(whichCell).halfmatchedResponse*2.5,'b -- o', ...
             Dx,Cells(whichCell).correlatedResponse*2.5,'r -- o', ...
             Dx,Cells(whichCell).anticorrelatedResponse*2.5,'k -- o', ...
             'linewidth',3,'markersize',5,'markerfacecolor','k');
+        else
+            
+            E1=errorbar(Dx,Cells(whichCell).halfmatchedResponse*2.5,...
+                Cells(whichCell).halfmatchedSEM*1.96);
+            set(E1,'linewidth',3,'color','b','marker','o','linestyle','--',...
+            'markersize',5,'markerfacecolor','b');
+            hold on;
+            E2=errorbar(Dx,Cells(whichCell).correlatedResponse*2.5,...
+                Cells(whichCell).correlatedSEM*1.96);
+            set(E2,'linewidth',3,'color','r','marker','o','linestyle','--',...
+            'markersize',5,'markerfacecolor','r')
+            
+            E3=errorbar(Dx,Cells(whichCell).anticorrelatedResponse*2.5,...
+                Cells(whichCell).anticorrelatedSEM*1.96);
+            set(E3,'linewidth',3,'color','k','marker','o','linestyle','--',...
+            'markersize',5,'markerfacecolor','k')
+            hold off;
+        end
+        
     elseif nargin > 2
         cla
         cellName = '';
@@ -674,7 +763,7 @@ function keydown_callback(myFig,evt)
 
 end
 
-function myHash = quickhash(string)
+function myHash = quickhash(string);
     string = double(string);
     myHash = mod(sum(string(:).^2.3),2^32-1);
 end
@@ -746,4 +835,20 @@ function show_stats(myFig,evt,Base);
     text(x,0.2,sprintf('r: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsr24.df,Statsr24.tstat,Pr24,CIr24(1),CIr24(2)),'fontsize',fs)
     text(x,0.125,sprintf('slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm24.df,Statsm24.tstat,Pm24,CIm24(1),CIm24(2)),'fontsize',fs);
     set(gcf,'color','white','position',[100,200,550,400])
+end
+
+function set_errorbars(menu,menuEvt,myFig,evt)
+    
+    if strcmpi(menu.Checked,'On');
+        set(menu,'Checked','Off');
+    else
+        set(menu,'Checked','On');
+    end
+    
+    figData = getappdata(myFig);
+    
+    setappdata(figData.TCHandle,'ErrorbarsToggled','True');
+    
+    TC_callback(myFig,evt);
+    
 end
