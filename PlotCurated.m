@@ -71,6 +71,7 @@ function PlotCurated(varargin)
         menuy_Cdprime = uimenu(menuy_ROC,'Label','Correlated d''','Checked', 'off','Callback',{@make_subplots,Base,'C d'''});
     
     % Misc
+    menuPlotDDIROC = uimenu(mh,'Label','DDI-ROC','Callback',{@make_auc_plot});
     menuStats = uimenu(mh,'Label','Stats','Callback',{@show_stats,Base});
     menuPenetrations = uimenu(mh,'Label','Penetrations','Callback',{@plot_penetrations,Base});
     menuRank = uimenu(mh,'Label','Rank','Callback',{@PlotRank});
