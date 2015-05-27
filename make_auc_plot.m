@@ -17,15 +17,16 @@ function make_auc_plot(myFig,evt);
             psychData = load('hm_psych_data.mat');
             psychData = psychData.hmPerformance;
 
-            initials = {'AD','DS','MS','SH','SR'};
+            initials = {'AD (H)','DS (H)','MS (H)','SH (H)','SR (H)','Lem (M)'};
+            psychData = [psychData;0.83];
 
             nSubs = length(psychData);
 
-            cols = rand([nSubs,3]);
+            cols = gen_diverse_colors(nSubs);
 
             for sub = 1:nSubs;
                 plot([psychData(sub),psychData(sub)],[0,0.3], ...
-                    'color',cols(sub,:),'linewidth',3,'linestyle',':');
+                    'color',cols(sub,:),'linewidth',2,'linestyle',':');
                 text(1,0.125+0.03*sub,initials{sub},'color',cols(sub,:));
             end
         end
@@ -62,5 +63,45 @@ function make_auc_plot(myFig,evt);
 
     
     
+
+end
+
+function cols = gen_diverse_colors(N,varargin);
+    % Usage: cols = gen_diverse_colors(N,[minDiff]);
+    % Function to return a diverse set of colors that differ by
+    % at least some absolute distance (can be specified as varargin)
+    % N is number of colors
+    % Optional argument minDiff gives the minimum
+    % squared distance between colors (increasing this will give larger
+    % differences between colors).
+    if nargin == 1
+        minDiff = 0.3;
+    else
+        minDiff = varargin{1};
+    end
+
+    cols = rand(N,3);
+
+    for c = 2:N;
+       previousCols = cols(1:c-1,:);
+       currentCol = repmat(cols(c,:),[size(previousCols,1),1]);
+
+       allDiffs = sum((previousCols-currentCol).^2,2);
+       counter = 0;
+       while any(allDiffs < minDiff);
+           counter = counter+1;
+           cols(c,:) = rand(1,3);
+           currentCol = repmat(cols(c,:),[size(previousCols,1),1]);
+
+           allDiffs = sum((previousCols-currentCol).^2,2);
+           
+           if counter > 1000;
+               error('Too many iterations; increment allowable iterations, change minDiff or use smaller N');
+           end
+               
+       end
+
+    fprintf('Counter: %i\n',counter);
+    end
 
 end
