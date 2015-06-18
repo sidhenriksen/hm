@@ -94,6 +94,7 @@ function PlotCurated(varargin)
         % Set the x and y axis data
         setappdata(myFig,'xdata','CHMr');
         setappdata(myFig,'ydata','CACr');
+        setappdata(myFig,'xy_errorbars',0);
         
         make_subplots(myFig,NaN,Base,'Correlation');
     end
@@ -193,7 +194,8 @@ function plot_data(currentData);
     % elsewhere and will plot the correct thing. This is really lengthy.
     
     monkeys = {'jbe','lem'};
-    figAppdata = getappdata(gcf);
+    myFig = gcf;
+    figAppdata = getappdata(myFig);
     axAppdata = getappdata(gca);
     allExptNames = figAppdata.Base(1).exptlist;
     
@@ -201,7 +203,7 @@ function plot_data(currentData);
     % from appdata
     if ~isfield(figAppdata,'colors');
         myCols = [1,0,0;0,1,0;0,0,1;1,1,0;1,0,1;0,1,1;rand(20,3).^2];
-        setappdata(gcf,'colors',myCols);
+        setappdata(gcf,'colors',myCols);    
     else
         myCols = figAppdata.colors;
     end
@@ -343,14 +345,76 @@ function plot_data(currentData);
             end
                 
             
+            % Get errorbar data
+            xbar = []; ybar = [];
+            errorbars_on=getappdata(myFig,'xy_errorbars');
+            
+            if errorbars_on
+                switch xtype
+                    case 'CHMr'
+                        xbar = currentData(cell).CHm_r_CI;
+
+                    case 'CACr'
+                        xbar = currentData(cell).CAc_r_CI;
+
+                    case 'CHMslope'
+                        xbar = currentData(cell).CHm_slope_CI;
+
+                    case 'CACslope'
+                        xbar = currentData(cell).CAc_slope_CI;
+                end
+
+
+                switch ytype
+                    case 'CHMr'
+                        ybar = currentData(cell).CHm_r_CI;
+
+                    case 'CACr'
+                        ybar = currentData(cell).CAc_r_CI;
+
+                    case 'CHMslope'
+                        ybar = currentData(cell).CHm_slope_CI;
+
+                    case 'CACslope'
+                        ybar = currentData(cell).CAc_slope_CI;
+                end
+            end
+
             %% This is where we actually plot the data
             % Different shapes for jbe and lem
             if strcmp(currentMonkey,monkeys{1});
                 plot(x,y,'k','marker','s','markersize',...
                     round(1+currentData(cell).DDI*20),'markerfacecolor',currentColor);
+                
+                if ~isempty(xbar);
+                    xbar = abs(xbar-x);
+                    E=herrorbar(x,y,xbar(1),xbar(2));
+                    set(E,'linewidth',2,'color',currentColor);
+                end
+                
+                if ~isempty(ybar);
+                    ybar = abs(ybar-y);
+                   E = errorbar(x,y,ybar(1),ybar(2));
+                   set(E,'linewidth',2,'color',currentColor);
+                end
+                        
+                    
             elseif strcmp(currentMonkey,monkeys{2});
                 plot(x,y,'k','marker','o','markersize', ...
                     round(1+currentData(cell).DDI*20),'markerfacecolor',currentColor);
+                
+                
+                if ~isempty(xbar);
+                    xbar = abs(xbar-x);
+                    E=herrorbar(x,y,xbar(1),xbar(2));
+                    set(E,'linewidth',2,'color',currentColor);
+                end
+                
+                if ~isempty(ybar);
+                    ybar = abs(ybar-y);
+                   E = errorbar(x,y,ybar(1),ybar(2));
+                   set(E,'linewidth',2,'color',currentColor);
+                end
             end
             
             X(cell) = x;
@@ -554,8 +618,9 @@ function TC_callback(myFig,evt,varargin);
         setappdata(myFig,'Errorbars','Off');
         setappdata(figData.TCHandle,'PseudoParent',myFig);
         toggleMenu = uimenu(figData.TCHandle,'Label','Toggle');
-        toggleErrorbarsSEM = uimenu(toggleMenu,'Label','Error bars (95% CIs)','Checked','off','Callback',{@set_errorbars,myFig,evt,'SEM'});
+        toggleErrorbarsSEM = uimenu(toggleMenu,'Label','SEM error bars (95% CIs)','Checked','off','Callback',{@set_errorbars,myFig,evt,'SEM'});
         toggleErrorbarsSD = uimenu(toggleMenu,'Label','Error bars (+/- 1 SD)','Checked','off','Callback',{@set_errorbars,myFig,evt,'SD'});
+        toggleErrorbarsBootstrap = uimenu(toggleMenu,'Label','Bootstrap error bars (95% CIs)','Checked','off','Callback',{@set_errorbars,myFig,evt,'bootstrap'});
         setappdata(figData.TCHandle,'ErrorbarsToggled','None');
     end
     
@@ -630,27 +695,55 @@ function TC_callback(myFig,evt,varargin);
             
             switch barType
                 case 'SEM'
-                    errorbarHM = Cells(whichCell).halfmatchedSEM*1.96;
-                    errorbarC = Cells(whichCell).correlatedSEM*1.96;
-                    errorbarAC = Cells(whichCell).anticorrelatedSEM*1.96;
+                    errorbarHM1 = Cells(whichCell).halfmatchedSEM*1.96;
+                    errorbarHM2 = Cells(whichCell).halfmatchedSEM*1.96;
+                    
+                    errorbarC1 = Cells(whichCell).correlatedSEM*1.96;
+                    errorbarC2 = Cells(whichCell).correlatedSEM*1.96;
+                    
+                    errorbarAC1 = Cells(whichCell).anticorrelatedSEM*1.96;
+                    errorbarAC2 = Cells(whichCell).anticorrelatedSEM*1.96;
+                    
                 case 'SD'
-                    errorbarHM = Cells(whichCell).halfmatchedSD;
-                    errorbarC = Cells(whichCell).correlatedSD;
-                    errorbarAC = Cells(whichCell).anticorrelatedSD;
+                    errorbarHM1 = Cells(whichCell).halfmatchedSD;
+                    errorbarHM2 = Cells(whichCell).halfmatchedSD;
+                    
+                    errorbarC1 = Cells(whichCell).correlatedSD;
+                    errorbarC2 = Cells(whichCell).correlatedSD;
+                    
+                    errorbarAC1 = Cells(whichCell).anticorrelatedSD;
+                    errorbarAC2 = Cells(whichCell).anticorrelatedSD;
+                    
+                case 'bootstrap'
+                    %errorbarC1 = Cells(whichCell).ciLowC;
+                    %errorbarC2 = Cells(whichCell).ciHighC;
+                    
+                    %errorbarHM1 = Cells(whichCell).ciLowHm;
+                    %errorbarHM2 = Cells(whichCell).ciHighHm;
+                    
+                    %errorbarAC1 = Cells(whichCell).ciLowAc;
+                    %errorbarAC2 = Cells(whichCell).ciHighAc;
+                    
+                    errorbarC1 = Cells(whichCell).correlatedResponse-Cells(whichCell).ciLowC;
+                    errorbarC2 = Cells(whichCell).ciHighC - Cells(whichCell).correlatedResponse;
+                    errorbarHM1 = Cells(whichCell).halfmatchedResponse-Cells(whichCell).ciLowHm;
+                    errorbarHM2 = Cells(whichCell).ciHighHm - Cells(whichCell).halfmatchedResponse;
+                    errorbarAC1 = Cells(whichCell).anticorrelatedResponse-Cells(whichCell).ciLowAc;
+                    errorbarAC2 = Cells(whichCell).ciHighAc - Cells(whichCell).anticorrelatedResponse;
             end
             
             E1=errorbar(Dx,Cells(whichCell).halfmatchedResponse*2.5,...
-                errorbarHM*2.5);
+                errorbarHM1*2.5,errorbarHM2*2.5);
             set(E1,'linewidth',3,'color','b','marker','o','linestyle','--',...
             'markersize',5,'markerfacecolor','b');
             hold on;
             E2=errorbar(Dx,Cells(whichCell).correlatedResponse*2.5,...
-                errorbarC*2.5);
+                errorbarC1*2.5,errorbarC2*2.5);
             set(E2,'linewidth',3,'color','r','marker','o','linestyle','--',...
             'markersize',5,'markerfacecolor','r')
             
             E3=errorbar(Dx,Cells(whichCell).anticorrelatedResponse*2.5,...
-                errorbarAC*2.5);
+                errorbarAC1*2.5,errorbarAC2*2.5);
             set(E3,'linewidth',3,'color','k','marker','o','linestyle','--',...
             'markersize',5,'markerfacecolor','k')
             hold off;
@@ -675,6 +768,7 @@ function TC_callback(myFig,evt,varargin);
     selectionType = get(myFig,'selectionType');
     shiftPressed = strcmp(selectionType,'extend');
     ctrlPressed = strcmp(selectionType,'alt');
+    
     
     % This will only get executed if uniqueID is not passed to TC_callback
     % (which we only do when we call TC_callback recursively)
@@ -773,7 +867,11 @@ function keydown_callback(myFig,evt)
                 plot_slopes(currentData);
             end
         end
-        
+       
+    elseif strcmp(keydown,'e');
+        errorbars_on = getappdata(myFig,'xy_errorbars');
+        setappdata(myFig,'xy_errorbars',~errorbars_on);
+        make_subplots(myFig,NaN,Base,'Correlation');
     end
 
 end
