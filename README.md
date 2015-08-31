@@ -11,6 +11,7 @@ sessions. These data are from two monkeys (lem and jbe); data from monkey jbe is
 points, data from monkey lem is shown as circular points.
 
 If you have any questions, feel free to email: sid.henriksen [at] gmail [dot] com
+
 =======
 Disparity tuning curves for correlated, anticorrelated and half-matched data
 >>>>>>> 32e66c857ac42763e653762959eb636ac1c6cbf2
