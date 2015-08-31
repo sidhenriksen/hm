@@ -1,5 +1,4 @@
 # hm
-<<<<<<< HEAD
 This repository provides Matlab code for an interactive visualization of data we have collected
 from V1 neurons in the macaque brain. Running PlotCurated.m will bring up an interactive plot.
 Each point in the plot corresponds to a cell, clicking on the cell will bring up the tuning curves
@@ -11,7 +10,7 @@ The DDI tells you how disparity tuned a neuron is. The different colors correspo
 sessions. These data are from two monkeys (lem and jbe); data from monkey jbe is shown as square
 points, data from monkey lem is shown as circular points.
 
-For any questions, email me: s.henriksen@ncl.ac.uk
+If you have any questions, feel free to email: sid.henriksen [at] gmail [dot] com
 =======
 Disparity tuning curves for correlated, anticorrelated and half-matched data
 >>>>>>> 32e66c857ac42763e653762959eb636ac1c6cbf2
