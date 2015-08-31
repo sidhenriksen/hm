@@ -20,7 +20,7 @@ function PlotRank(varargin)
 end
 
 function plotNormal(Base)
-    for d = [1,4];
+    for d = [1,2];
         
         nCells = length(Base(d).Cells);
         dxLengths = zeros(1,nCells);
@@ -123,7 +123,7 @@ end
 
 function plotAlt(Base,type)
 
-    for d = [1,4];
+    for d = [1,2];
         
         nCells = length(Base(d).Cells);
         dxLengths = zeros(1,nCells);

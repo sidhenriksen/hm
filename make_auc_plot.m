@@ -7,7 +7,7 @@ function make_auc_plot(myFig,evt);
     
 
     
-    dds = [1,4];
+    dds = [1,2];
     for dd = 1:length(dds);
         figure(myFig);
         subplot(1,2,dd); hold on;
