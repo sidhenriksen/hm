@@ -13,7 +13,7 @@ function PlotCurated(varargin)
         ddmax = 2;
     else
         load('CuratedCells.mat');
-        ddmax = 4;
+        ddmax = 2;
     end
     
 
@@ -235,10 +235,10 @@ function plot_data(currentData);
             % to plot on the x and y axes.
             switch xtype
                 case 'CHMr'
-                    x = currentData(cell).regHm(1);
+                    x = currentData(cell).regHmRegular(1);
                     
                 case 'CACr'
-                    x = currentData(cell).regAc(1);
+                    x = currentData(cell).regAcRegular(1);
                     
                 case 'CMeanr'
                     corrResp = currentData(cell).correlatedResponse';
@@ -294,10 +294,10 @@ function plot_data(currentData);
                 case 'HM d''';
                     y = currentData(cell).HMdprime;
                 case 'CHMr'
-                    y = currentData(cell).regHm(1);
+                    y = currentData(cell).regHmRegular(1);
                     
                 case 'CACr'
-                    y = currentData(cell).regAc(1);
+                    y = currentData(cell).regAcRegular(1);
                     
                 case 'CMeanr'
                     corrResp = currentData(cell).correlatedResponse';
@@ -885,7 +885,7 @@ end
 function plot_penetrations(~,~,Base);
     figure(); hold on;
     set(gcf,'color','white');
-    SubBase = Base(length(Base));
+    SubBase = Base(1);
     XYs = SubBase.penetrationlist;
     exptlist = SubBase.exptlist;
     
@@ -897,12 +897,17 @@ function plot_penetrations(~,~,Base);
         
         % Find how many cells come from that session:
         count = 0;
-        
+        dws = [];
         for c = 1:length(SubBase.Cells);
             currentFilename = SubBase.Cells(c).filename;
-            count = count + strcmp(currentFilename(18:24),session);
+            
+            
+            if strcmp(currentFilename(18:24),session);
+                count = count + 1;
+                dws = [dws,SubBase.Cells(c).dw];
+            end
         end
-        
+        dws(dws==1) = 0.15;
         if strcmp(monkey,'jbe'); % colour coded by monkey
             col = 'red';
         else
@@ -911,7 +916,7 @@ function plot_penetrations(~,~,Base);
         
         
         XY = XYs(:,j);
-        plot(XY(1),XY(2),'k o','markerfacecolor',col);
+        plot(XY(1),XY(2),'k o','markerfacecolor',col,'markersize',5*exp(mean(dws)*4));
         
         text(XY(1)-0.1,XY(2)+0.1,[session, ' (',num2str(count),')']);
         

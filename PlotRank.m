@@ -54,7 +54,9 @@ function plotNormal(Base)
             acRank = anticorrelatedResponse(cIndex);
             
             Dx = Base(d).Cells(cell).Dx;
-            
+            if cell == 33;
+                a = 3;
+            end
             
             % Resample disparity values
             newDx = linspace(min(Dx),max(Dx),dxL);
@@ -63,7 +65,10 @@ function plotNormal(Base)
             hmRank2 = interp1(Dx,hmRank,newDx);
             acRank2 = interp1(Dx,acRank,newDx);
             
-            maxC = max([cRank2,hmRank2,acRank2]); minC = min([cRank2,hmRank2,acRank2]);
+            % Not quite sure how to handle the max and min values.
+            
+            maxC = max([acRank2,hmRank2,cRank2]); minC = min([acRank2,hmRank2,cRank2]);
+            
             correlatedRank(cell,:) = (cRank2-minC)/(maxC-minC);
             halfmatchedRank(cell,:) = (hmRank2-minC)/(maxC-minC);
             anticorrelatedRank(cell,:) = (acRank2-minC)/(maxC-minC);
@@ -138,20 +143,17 @@ function plotAlt(Base,type)
         acSlopes = cat(1,Base(d).Cells.regAc);
         acSlopes = acSlopes(:,2);
         q50 = quantile(acSlopes,0.5);
+        q33 = quantile(acSlopes,1/3);
+        q66 = quantile(acSlopes,2/3);
         
-        nLower = sum(acSlopes < q50);
-        nUpper = sum(acSlopes > q50);
+        nLower = sum(acSlopes < q33);
+        nUpper = sum(acSlopes > q66);
 
         
         lowerPlotRank = zeros(nLower,dxL);
         upperPlotRank = zeros(nUpper,dxL);
-        lowerCorrelatedRank = zeros(nLower,dxL);
-        lowerHalfmatchedRank = zeros(nLower,dxL);
-        lowerAnticorrelatedRank = zeros(nLower,dxL);
+
         
-        upperCorrelatedRank = zeros(nUpper,dxL);
-        upperHalfmatchedRank = zeros(nUpper,dxL);
-        upperAnticorrelatedRank = zeros(nUpper,dxL);
         
         lowerCell = 0; upperCell = 0;
         for cell = 1:nCells;
@@ -177,16 +179,13 @@ function plotAlt(Base,type)
             hmRank2 = interp1(Dx,hmRank,newDx);
             acRank2 = interp1(Dx,acRank,newDx);
             
-            maxC = max([cRank2,hmRank2,acRank2]); minC = min([cRank2,hmRank2,acRank2]);
+            maxC = max([acRank2,hmRank2,cRank2]); minC = min([acRank2,hmRank2,cRank2]);
             
             acSlope = Base(d).Cells(cell).regAc(2);
             
-            if acSlope > q50;
+            if acSlope > q66;
                 upperCell = upperCell+1;
-                upperCorrelatedRank(upperCell,:) = (cRank2-minC)/(maxC-minC);
-                upperHalfmatchedRank(upperCell,:) = (hmRank2-minC)/(maxC-minC);
-                upperAnticorrelatedRank(upperCell,:) = (acRank2-minC)/(maxC-minC);
-                
+
                 switch type
                     case 'corr'
                         upperPlotRank(upperCell,:) = (cRank2-minC)/(maxC-minC);
@@ -196,9 +195,8 @@ function plotAlt(Base,type)
                         upperPlotRank(upperCell,:) = (acRank2-minC)/(maxC-minC);
                 end
                 
-                % Remove this after:
-                upperHalfmatchedRank(upperCell,:) = (acRank2-minC)/(maxC-minC);
-            else
+             
+            elseif acSlope < q33
                 lowerCell = lowerCell+1;
                 switch type
                     case 'corr'
