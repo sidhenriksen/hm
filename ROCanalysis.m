@@ -20,7 +20,8 @@ function [AUCs,data,dprimes] = ROCanalysis(AllExpt,mixac,dd,varargin);
     
     end
     
-    whichCells = find(P < 0.01);
+    P_thresh = 0.01;
+    whichCells = find(P < P_thresh);
     
     dd_values = get_stimvalues(AllExpt,'dd');
     mixac_values = get_stimvalues(AllExpt,'mixac');

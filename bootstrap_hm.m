@@ -56,7 +56,7 @@ function [ciLow,ciHigh] = bootstrap_hm(currentCell,mixac,varargin);
     end
        
     
-    ciLow = quantile(bootstrapMeans',0.05);
-    ciHigh = quantile(bootstrapMeans',0.95);
+    ciLow = quantile(bootstrapMeans',0.025);
+    ciHigh = quantile(bootstrapMeans',0.975);
     
 end
