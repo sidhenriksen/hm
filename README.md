@@ -13,5 +13,5 @@ points, data from monkey lem is shown as circular points.
 If you have any questions, feel free to email: sid.henriksen [at] gmail [dot] com
 
 =======
-Disparity tuning curves for correlated, anticorrelated and half-matched data
+Interactive data browser for correlated, anticorrelated and half-matched tuning curves from macaque V1.
 >>>>>>> 32e66c857ac42763e653762959eb636ac1c6cbf2
