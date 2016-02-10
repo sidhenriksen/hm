@@ -66,35 +66,35 @@ The following gives a complete documentation of the fields in Base(k).Cells:
 `regHm` - output of a type 2 regression between correlated and half-matched tuning curves.  
 This is a vector of size three, where the entries are [r,m,b]. r is the correlation coefficient,
 m is the half-matched slope, b is the offset (probably useless).  
-`regAc` - same as regHm just for anticorrelated slope.    
-`regHmRegular` - same as regHm except using OLS regression.    
-`regAcRegular` same as regAc except using OLS regression.    
+`regAc` - same as regHm just for anticorrelated slope.  
+`regHmRegular` - same as regHm except using OLS regression.  
+`regAcRegular` same as regAc except using OLS regression.  
 `Dx` - disparities used in the experiment.
 
-`correlatedResponse` - tuning curve for correlated stimuli (averaged across trial)
-`halfmatchedResponse` - tuning curve for half-matched stimuli
-`anticorrelatedResponse` - tuning curve for anticorrelated stimuli
+`correlatedResponse` - tuning curve for correlated stimuli (averaged across trial)  
+`halfmatchedResponse` - tuning curve for half-matched stimuli  
+`anticorrelatedResponse` - tuning curve for anticorrelated stimuli  
 
-`correlatedSEM` - SEMs for the correlated tuning curve
-`halfmatchedSEM` - SEMs for the half-matched tuning curve
-`anticorrelatedSEM` - SEMs for the anticorrelated tuning curve
+`correlatedSEM` - SEMs for the correlated tuning curve  
+`halfmatchedSEM` - SEMs for the half-matched tuning curve  
+`anticorrelatedSEM` - SEMs for the anticorrelated tuning curve  
 
-`RMS` - root mean square for tuning curves for correlated, half-matched, and anticorrelated stimuli
-`DDI` - DDI computed on correlated tuning curves
-`HMauc` - area under the ROC curve (AUROC) for half-matched stimuli
-`HMdprime` - HMauc converted to a d' value
-`Cauc` - AUROC for correlated stimuli
-`Cdprime` - Cauc converted to a d' value
-`HMaucZ` - AUROC for half-matched stimuli (spike counts Z-normalised by block number to correct for slow drifts)
-`CaucZ` - same as `HMaucZ` for correlated stimuli
+`RMS` - root mean square for tuning curves for correlated, half-matched, and anticorrelated stimuli  
+`DDI` - DDI computed on correlated tuning curves  
+`HMauc` - area under the ROC curve (AUROC) for half-matched stimuli  
+`HMdprime` - HMauc converted to a d' value  
+`Cauc` - AUROC for correlated stimuli  
+`Cdprime` - Cauc converted to a d' value  
+`HMaucZ` - AUROC for half-matched stimuli (spike counts Z-normalised by block number to correct for slow drifts)  
+`CaucZ` - same as `HMaucZ` for correlated stimuli  
 
-`density` - density of the stimulus
-`dw` - dot width used (in degrees)
-`ciLowHm` and `ciHighHm` - 95% bootstrap confidence intervals (CIs) for half-matched tuning curves
-`ciLowC` and `ciHighC` - 95% bootstrap CIs for correlated tuning curves
-`ciLowAc` and `ciHighAc` 95% bootstrap CIs for anticorrelated tuning curves
-`CHm_r_CI` - 95% bootstrap CIs for r between correlated and half-matched
-`CHm_slope_CI` - 95% bootstrap CIs for half-matched slope
-`CAc_r_CI` - 95% bootstrap CIs for r between correlated and anticorrelated
-`CAc_slope_CI` - 95% bootstrap CIs for anticorrelated slope
-`DDIhm` - half-matched DDI
+`density` - density of the stimulus  
+`dw` - dot width used (in degrees)  
+`ciLowHm` and `ciHighHm` - 95% bootstrap confidence intervals (CIs) for half-matched tuning curves  
+`ciLowC` and `ciHighC` - 95% bootstrap CIs for correlated tuning curves  
+`ciLowAc` and `ciHighAc` 95% bootstrap CIs for anticorrelated tuning curves  
+`CHm_r_CI` - 95% bootstrap CIs for r between correlated and half-matched  
+`CHm_slope_CI` - 95% bootstrap CIs for half-matched slope  
+`CAc_r_CI` - 95% bootstrap CIs for r between correlated and anticorrelated  
+`CAc_slope_CI` - 95% bootstrap CIs for anticorrelated slope  
+`DDIhm` - half-matched DDI  
