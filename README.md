@@ -60,16 +60,16 @@ xlabel('Disparity (deg)');
 ylabel('Spike count');
 ```
 
-The following gives a complete documentation of the fields in Base(k).Cells:\s
-`cellnumber` - the cell number given in the recording session\s
-`filename` - where the data is located locally (not useful for external use)\s
-`regHm` - output of a type 2 regression between correlated and half-matched tuning curves.\s
+The following gives a complete documentation of the fields in Base(k).Cells:
+`cellnumber` - the cell number given in the recording session.  
+`filename` - where the data is located locally (not useful for external use).  
+`regHm` - output of a type 2 regression between correlated and half-matched tuning curves.  
 This is a vector of size three, where the entries are [r,m,b]. r is the correlation coefficient,
-m is the half-matched slope, b is the offset (probably useless).\s
-`regAc` - same as regHm just for anticorrelated slope.\s
-`regHmRegular` - same as regHm except using OLS regression.\s
-`regAcRegular` same as regAc except using OLS regression.\s
-`Dx` - disparities used in the experiment.\s
+m is the half-matched slope, b is the offset (probably useless).  
+`regAc` - same as regHm just for anticorrelated slope.    
+`regHmRegular` - same as regHm except using OLS regression.    
+`regAcRegular` same as regAc except using OLS regression.    
+`Dx` - disparities used in the experiment.
 
 `correlatedResponse` - tuning curve for correlated stimuli (averaged across trial)
 `halfmatchedResponse` - tuning curve for half-matched stimuli
