@@ -35,7 +35,7 @@ while in the repo directory, a variable called `Base` will be loaded into your w
 `density`, `Cells`, `exptlist`, `penetrationlist`. Base is a 1x2 array, where the elements correspond to the two densities
 used (5% and 24%).
 
-`density` tells the density of the random dot stereograms used (5% or 24%).  
+`density` gives the density of the random dot stereograms used (5% or 24%).  
 `Cells` is the struct containing all the curated data.  
 `exptlist` lists all the recording sessions  
 `penetrationlist` gives the x-y coordinates for each recording session.  
