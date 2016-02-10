@@ -32,7 +32,7 @@ you can access the curated data itself and explore it manually. The data is stor
 load('CuratedCells.mat')
 ```
 while in the repo directory, a variable called `Base` will be loaded into your workspace. `Base` is a struct with fields
-`density`, `Cells`, `exptlist`, `penetrationlist`. Base is 1x2 arrays, where the elements correspond to the two densities
+`density`, `Cells`, `exptlist`, `penetrationlist`. Base is a 1x2 array, where the elements correspond to the two densities
 used (5% and 24%).
 
 `density` tells the density of the random dot stereograms used (5% or 24%).
@@ -63,7 +63,7 @@ ylabel('Spike count');
 The following gives a complete documentation of the fields in Base(k).Cells:
 `cellnumber` - the cell number given in the recording session.  
 `filename` - where the data is located locally (not useful for external use).  
-`regHm` - output of a type 2 regression between correlated and half-matched tuning curves.  
+`regHm` - output of a type 2 regression between correlated and half-matched tuning curves.
 This is a vector of size three, where the entries are [r,m,b]. r is the correlation coefficient,
 m is the half-matched slope, b is the offset (probably useless).  
 `regAc` - same as regHm just for anticorrelated slope.  
