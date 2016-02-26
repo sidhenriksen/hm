@@ -1,5 +1,12 @@
 function PlotCurated(varargin)
-
+    %
+    % Author: Sid Henriksen (2015). Email: sid.henriksen@gmail.com.
+    %
+    % Note, the code for this browser is not well-documented, nor is it
+    % intended to be. The README file in the repo documents the structure
+    % of the CuratedCells.mat file, which this script uses. 
+    %
+    
     % Create figure
     myFig=figure();
     
@@ -934,6 +941,27 @@ function show_stats(myFig,evt,Base);
     [Hr24,Pr24,CIr24,Statsr24] = ttest(regHm24(:,1),0);
     [Hm24,Pm24,CIm24,Statsm24] = ttest(regHm24(:,2),0);
     
+    % Do this for each monkey separately
+    lem_idx = zeros(1,length(Base(1).Cells));
+    for j = 1:length(Base(1).Cells);
+        currentCell = Base(1).Cells(j);
+        lem_idx(j) = any(strfind(currentCell.filename,'lem'));
+    end
+    lem_idx = logical(lem_idx);
+    jbe_idx = ~lem_idx;    
+    
+    [~,Pm5_lem,CIm5_lem,Statsm5_lem] = ttest(regHm5(lem_idx,2),0);    
+    [~,Pm24_lem,CIm24_lem,Statsm24_lem] = ttest(regHm24(lem_idx,2),0);
+    
+    [~,Pm5_jbe,CIm5_jbe,Statsm5_jbe] = ttest(regHm5(jbe_idx,2),0);
+    [~,Pm24_jbe,CIm24_jbe,Statsm24_jbe] = ttest(regHm24(jbe_idx,2),0);
+    
+    [~,Pm5v24,CIm5v24,Statsm5v24] = ttest(regHm5(:,2),regHm24(:,2));
+    [~,Pm5v24_jbe,CIm5v24_jbe,Statsm5v24_jbe] = ttest(regHm5(jbe_idx,2),regHm24(jbe_idx,2));
+    [~,Pm5v24_lem,CIm5v24_lem,Statsm5v24_lem] = ttest(regHm5(lem_idx,2),regHm24(lem_idx,2));
+    
+    
+    
     figure();
     xlim([0,1]);
     ylim([0,1]);
@@ -942,17 +970,39 @@ function show_stats(myFig,evt,Base);
     
     % 5% density
     fs = 13;
-    text(x,0.925,sprintf(['one-sample t-tests testing whether slopes and \ncorrelation coefficients', ...
+    text(x,1.0,sprintf(['one-sample t-tests testing whether slopes and \ncorrelation coefficients', ...
         ' are drawn from sample with mean 0']));
-    text(x,0.7,'5% density','fontsize',16);
-    text(x,0.6,sprintf('r: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsr5.df,Statsr5.tstat,Pr5,CIr5(1),CIr5(2)),'fontsize',fs)
-    text(x,0.525,sprintf('slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5.df,Statsm5.tstat,Pm5,CIm5(1),CIm5(2)),'fontsize',fs);
     
+    y1 = 0.9;
+    dy=0.04;
+    text(x,y1,'5% density','fontsize',16);
+    text(x,y1-dy,sprintf('r: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsr5.df,Statsr5.tstat,Pr5,CIr5(1),CIr5(2)),'fontsize',fs)
+    text(x,y1-dy*2,sprintf('slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5.df,Statsm5.tstat,Pm5,CIm5(1),CIm5(2)),'fontsize',fs);
+    
+    y2 = y1-dy*3.5;
+    text(x,y2,'By monkey:','fontsize',14);
+    text(x,y2-dy,sprintf('lem slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5_lem.df,Statsm5_lem.tstat,Pm5_lem,CIm5_lem(1),CIm5_lem(2)),'fontsize',fs);
+    text(x,y2-dy*2,sprintf('jbe slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5_jbe.df,Statsm5_jbe.tstat,Pm5_jbe,CIm5_jbe(1),CIm5_jbe(2)),'fontsize',fs);
+    
+    
+    y3 = y2-dy*5;
     % 5% density
-    text(x,0.3,'24% density','fontsize',16);
-    text(x,0.2,sprintf('r: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsr24.df,Statsr24.tstat,Pr24,CIr24(1),CIr24(2)),'fontsize',fs)
-    text(x,0.125,sprintf('slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm24.df,Statsm24.tstat,Pm24,CIm24(1),CIm24(2)),'fontsize',fs);
-    set(gcf,'color','white','position',[100,200,550,400])
+    text(x,y3,'24% density','fontsize',16);
+    text(x,y3-dy,sprintf('r: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsr24.df,Statsr24.tstat,Pr24,CIr24(1),CIr24(2)),'fontsize',fs)
+    text(x,y3-dy*2,sprintf('slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm24.df,Statsm24.tstat,Pm24,CIm24(1),CIm24(2)),'fontsize',fs);
+    
+    y4 = y3-dy*3.5;
+    text(x,y4,'By monkey:','fontsize',14);
+    text(x,y4-dy,sprintf('lem slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm24_lem.df,Statsm24_lem.tstat,Pm24_lem,CIm24_lem(1),CIm24_lem(2)),'fontsize',fs);
+    text(x,y4-dy*2,sprintf('jbe slope: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm24_jbe.df,Statsm24_jbe.tstat,Pm24_jbe,CIm24_jbe(1),CIm24_jbe(2)),'fontsize',fs);
+    
+    y5 = y4-dy*5;
+    text(x,y5,'5%-24% slope comparisons','fontsize',16);
+    text(x,y5-dy,sprintf('combined: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5v24.df,Statsm5v24.tstat,Pm5v24,CIm5v24(1),CIm5v24(2)),'fontsize',fs);
+    text(x,y5-dy*2,sprintf('lem: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5v24_lem.df,Statsm5v24_lem.tstat,Pm5v24_lem,CIm5v24_lem(1),CIm5v24_lem(2)),'fontsize',fs);
+    text(x,y5-dy*3,sprintf('jbe: t(%i)=%.2f, P=%.2d [95%% CIs: (%.2f, %.2f)]',Statsm5v24_jbe.df,Statsm5v24_jbe.tstat,Pm5v24_jbe,CIm5v24_jbe(1),CIm5v24_jbe(2)),'fontsize',fs);
+    
+    set(gcf,'color','white','position',[100,200,800,700])
 end
 
 function set_errorbars(menu,menuEvt,myFig,evt,barType)
