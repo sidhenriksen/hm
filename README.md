@@ -60,7 +60,7 @@ xlabel('Disparity (deg)');
 ylabel('Spike count');
 ```
 
-The following gives a complete documentation of the fields in Base(k).Cells:
+The following gives a complete documentation of the fields in Base(k).Cells:    
 `cellnumber` - the cell number given in the recording session.  
 `filename` - where the data is located locally (not useful for external use).  
 `regHm` - output of a type 2 regression between correlated and half-matched tuning curves.

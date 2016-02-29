@@ -1,49 +1,78 @@
 function fig1(N)
+    % This recreates Figure 1 from Henriksen, Read, & Cumming (2016)
+    %
     % This simulation requires BEMtoolbox; available from
     % https://github.com/sidh0/BEMtoolbox
     
+    % Run-time options
     run_parallel = 1;
-    bootstrap_mode = 1;
+    bootstrap_mode = 1; % will save responses to disk
     
+    % Create the BEM object
     bem = BEMunit('x0',0,'y0',0,'silent',1);
     bem.outputNL = @(x)(x.^2);
     bem.Nx = 292; bem.Ny = 292;
     bem.deg_per_pixel=0.02;
-    bem = bem.rescale(1.65);
+    bem = bem.rescale(1.5);
     
+    % Create stimulus object
     rds = pairedRDS(); rds.dotsize=4;
     rds.Nx = bem.Nx; rds.Ny = bem.Nx;
     
+    % Set stimulus parameters
     densities = [0.05,0.24];
     corrs = [-1,0,1];
     dxs = -24:2:24;
     
-    % low and high dot density
+    % Pre-allocate space for low and high dot density
     low_tcs = zeros(length(dxs),length(corrs));
     high_tcs = zeros(length(dxs),length(corrs));
     
     if nargin <1
         N = 2e4;
     end
+    
+    low_rds_ids = zeros(length(dxs),length(corrs));
+    high_rds_ids = zeros(length(dxs),length(corrs));
+    
+    % Loop over correlations and disparities; compute responses to each
     for k = 1:length(corrs);
         rds.correlation = corrs(k);        
         for j = 1:length(dxs);
             rds.dx = dxs(j);
-            
+                                    
             rds.density = densities(1);
+            if ~N
+                bem = bem.load_bootstrap(rds);
+            end
+            
+            low_rds_ids(j,k) = rds.get_identifier();
+            
+            
+            
             low_tcs(j,k) = mean(bem.simulate_spatial(rds,N,bootstrap_mode,run_parallel));
             
             rds.density = densities(2);
+            
+            if ~N
+                bem = bem.load_bootstrap(rds);
+            end
+            
+            high_rds_ids(j,k) = rds.get_identifier();
+            
             high_tcs(j,k) = mean(bem.simulate_spatial(rds,N,bootstrap_mode,run_parallel));
             
         end
     end
     
     
-    buffer = 0.05;
     
+    
+    
+    % Finally, plot the data
     fig=figure();
     cols = {'k','b','r'};
+    buffer = 0.05;
     for d = 1:length(densities);
         subplot(1,length(densities),d); hold on;
         switch d
